@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../widgets/header_widget.dart';
 import '../widgets/custom_text_field.dart';
-import '../pages/log.dart';
+import 'log.dart';
 
 class ReinitialisationScreen extends StatefulWidget {
   const ReinitialisationScreen({Key? key}) : super(key: key);
@@ -80,7 +80,9 @@ class _ReinitialisationScreenState extends State<ReinitialisationScreen> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const LoginScreen2())); // Goes back to the previous screen
+                                builder: (context) => const LoginScreen2()
+                            )
+                        );
                       },
                     ),
                   ),
@@ -144,6 +146,7 @@ class _ReinitialisationScreenState extends State<ReinitialisationScreen> {
                       data: Icons.email,
                       controller: emailController,
                       hintText: "email",
+                      type: TextInputType.text,
                       isObsecre: false,
                     ),
                     ],

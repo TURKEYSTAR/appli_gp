@@ -14,12 +14,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     {
       "animation": "assets/lottie/lotcarte.json",
       "title": "Livraison Rapide",
-      "description": "Faites livrer vos colis à toute vitesse par nos transporteurs de confiance."
+      "description": "Faites livrer vos colis dans les plus brefs délais par nos transporteurs de confiance."
     },
     {
       "animation": "assets/lottie/lot2.json",
       "title": "Suivi en Temps Réel",
-      "description": "Suivez vos colis en direct et en temps réel."
+      "description": "Suivez vos colis en direct et en temps réel sur votre application."
     },
     {
       "animation": "assets/lottie/lot1.json",
@@ -31,59 +31,59 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
-              },
-              itemCount: onboardingData.length,
-              itemBuilder: (context, index) {
-                return OnboardingPage(
-                  animationPath: onboardingData[index]["animation"]!,
-                  title: onboardingData[index]["title"]!,
-                  description: onboardingData[index]["description"]!,
-                );
-              },
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
             children: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/home');
-                },
-                child: Text("Passer"),
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                  },
+                  itemCount: onboardingData.length,
+                  itemBuilder: (context, index) {
+                    return OnboardingPage(
+                      animationPath: onboardingData[index]["animation"]!,
+                      title: onboardingData[index]["title"]!,
+                      description: onboardingData[index]["description"]!,
+                      onNextPressed: () {
+                        if (_currentPage == onboardingData.length - 1) {
+                          Navigator.pushReplacementNamed(context, '/home');
+                        } else {
+                          _pageController.nextPage(
+                            duration: Duration(milliseconds: 300),
+                            curve: Curves.ease,
+                          );
+                        }
+                      },
+                      isLastPage: _currentPage == onboardingData.length - 1,
+                    );
+                  },
+                ),
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(
                   onboardingData.length,
                       (index) => buildDot(index: index),
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  if (_currentPage == onboardingData.length - 1) {
-                    Navigator.pushReplacementNamed(context, '/home');
-                  } else {
-                    _pageController.nextPage(
-                      duration: Duration(milliseconds: 300),
-                      curve: Curves.ease,
-                    );
-                  }
-                },
-                child: Text(_currentPage == onboardingData.length - 1
-                    ? "Commencer"
-                    : "Suivant"),
-              ),
+              SizedBox(height: 20),
             ],
           ),
-          SizedBox(height: 20),
+          Positioned(
+            top: 50,
+            right: 20,
+            child: TextButton(
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, '/home');
+              },
+              child: Text("Passer", style: TextStyle(fontSize: 18, color: Colors.black)),
+            ),
+          ),
         ],
       ),
     );
@@ -91,8 +91,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Widget buildDot({required int index}) {
     return Container(
-      height: 10,
-      width: _currentPage == index ? 20 : 10,
+      height: 12,
+      width: _currentPage == index ? 12 : 12,
       margin: EdgeInsets.only(right: 5),
       decoration: BoxDecoration(
         color: _currentPage == index ? Colors.blue : Colors.grey,
@@ -106,11 +106,15 @@ class OnboardingPage extends StatelessWidget {
   final String animationPath;
   final String title;
   final String description;
+  final VoidCallback onNextPressed;
+  final bool isLastPage;
 
   OnboardingPage({
     required this.animationPath,
     required this.title,
     required this.description,
+    required this.onNextPressed,
+    required this.isLastPage,
   });
 
   @override
@@ -120,18 +124,37 @@ class OnboardingPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Lottie.asset(animationPath, height: 400, width: 400),
-          SizedBox(height: 20),
+          Lottie.asset(animationPath, height: 300, width: 400),
+          SizedBox(height: 25),
           Text(
             title,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 20),
           Text(
             description,
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w400,
+              color: Colors.grey,
+            ),
             textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 60),
+          ElevatedButton(
+            onPressed: onNextPressed,
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+              backgroundColor: Colors.blueGrey,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+            child: Text(
+              isLastPage ? "Commencer" : "Suivant",
+              style: TextStyle(fontSize: 19, color: Colors.white),
+            ),
           ),
         ],
       ),

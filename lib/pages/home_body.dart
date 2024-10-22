@@ -34,7 +34,6 @@ class _HomeBodyState extends State<HomeBody> {
 
           SizedBox(height: 16),
 
-          // Search Bar inside the body
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
@@ -45,7 +44,7 @@ class _HomeBodyState extends State<HomeBody> {
                   borderRadius: BorderRadius.circular(20),
                   borderSide: BorderSide.none,
                 ),
-                fillColor: Colors.grey[200],
+                fillColor: Colors.white70,
                 filled: true,
                 prefixIcon: Icon(Icons.search),
               ),
@@ -63,22 +62,25 @@ class _HomeBodyState extends State<HomeBody> {
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 19.0),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundImage: AssetImage('assets/images/images.png'),
-                ),
-                SizedBox(width: 8),
-                CircleAvatar(
-                  backgroundImage: AssetImage('assets/images/images.png'),
-                ),
-                SizedBox(width: 8),
-                CircleAvatar(
-                  backgroundImage: AssetImage('assets/images/images.png'),
-                ),
-                SizedBox(width: 8),
-                Icon(Icons.add),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundImage: AssetImage('assets/images/images.png'),
+                  ),
+                  SizedBox(width: 8),
+                  CircleAvatar(
+                    backgroundImage: AssetImage('assets/images/images.png'),
+                  ),
+                  SizedBox(width: 8),
+                  CircleAvatar(
+                    backgroundImage: AssetImage('assets/images/images.png'),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(Icons.add),
+                ],
+              ),
             ),
           ),
 
@@ -86,9 +88,9 @@ class _HomeBodyState extends State<HomeBody> {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                Expanded(child: TransporteurCard(name: "Transporteur123")),
+                Expanded(child: TransporteurCard(name: "James")),
                 SizedBox(width: 16),
-                Expanded(child: TransporteurCard(name: "Transporteur543")),
+                Expanded(child: TransporteurCard(name: "Jean")),
               ],
             ),
           ),
@@ -125,7 +127,7 @@ class _HomeBodyState extends State<HomeBody> {
                     'Transporteurs',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: _selectedTab == "Transporteurs" ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: _selectedTab == "Transporteurs" ? FontWeight.normal : FontWeight.normal,
                       color: _selectedTab == "Transporteurs" ? Colors.black : Colors.grey,
                     ),
                   ),
@@ -141,6 +143,7 @@ class _HomeBodyState extends State<HomeBody> {
             thickness: 1,
           ),
 
+          // List of Annonces or Transporteurs
           Column(
             children: List.generate(
               _selectedTab == "Annonces" ? annonces.length : transporteurs.length,
@@ -149,9 +152,21 @@ class _HomeBodyState extends State<HomeBody> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                      child: _selectedTab == "Annonces"
-                          ? AvailableGPCard()
-                          : TransporteurCard(name: transporteurs[index]),
+                      child: GestureDetector(
+                        onTap: () {
+                          if (_selectedTab == "Annonces") {
+                            // Navigate to details_annonce.dart
+                            Navigator.pushNamed(
+                              context,
+                              '/detailsAnnonce',
+                              arguments: annonces[index],  // Passing the selected annonce as an argument
+                            );
+                          }
+                        },
+                        child: _selectedTab == "Annonces"
+                            ? AvailableGPCard() // Replace with the widget displaying the Annonce
+                            : TransporteurCard(name: transporteurs[index]), // For Transporteurs
+                      ),
                     ),
                     Divider(
                       color: Colors.grey[200],

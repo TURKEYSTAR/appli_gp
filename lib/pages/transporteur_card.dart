@@ -9,14 +9,10 @@ class TransporteurCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          color: Colors.white,  // White border for the card
-          width: 1.0,  // Thickness of the border
-        ),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Card(
-        color: Colors.grey[200],
+        color: Colors.white70,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),

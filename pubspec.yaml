@@ -19,6 +19,16 @@ dependencies:
   google_fonts: ^6.2.1
   intl_phone_field: ^3.2.0
   country_picker: ^2.0.26
+  date_format_field: ^0.1.0
+  input_quantity: ^2.4.1
+  date_format: ^2.0.9
+  flag: ^7.0.0
+
+  firebase_core: ^3.6.0
+  cloud_firestore: ^5.4.4
+  firebase_auth: ^5.3.1
+  firebase_storage: ^12.3.4
+  shared_preferences: ^2.0.13
 
 dev_dependencies:
   flutter_test:
@@ -38,16 +48,9 @@ flutter:
     - assets/flags/korea_flag.png
     - assets/flags/china_flag.png
     - assets/images/reviewer.jpg
-    - assets/images/avatar1.jpg
-    - assets/images/avatar2.jpg
     - assets/images/avatar3.png
-    - assets/images/colispro.png
-    - assets/images/gp.jpg
     - assets/images/camion-de-livraison.png
-    - assets/images/camion-de-livraison.gif
-    - assets/images/lovepik.png
     - assets/images/p.jpg
-    - assets/images/Sanstitre.jpg
     - assets/images/images.png
     - assets/images/GP Express.png
     - assets/images/GP Express(1).png
@@ -63,6 +66,10 @@ flutter:
     - assets/lottie/lot6.json
     - assets/lottie/lot7.json
     - assets/lottie/lotcarte.json
+    - assets/images/poids.jpeg
+    - assets/images/produit.jpeg
+    - assets/images/chaussure1.jpeg
+    - assets/images/enveloppe.jpeg
     # You can add other images inside this folder.
 
   # Fonts section to define custom fonts (if needed)

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:appli_gp/pages/log.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -29,7 +28,7 @@ class DetailAnnoncePage extends StatelessWidget {
         ),
         centerTitle: true,
         title: Text(
-          "Detail annonce",
+          "Detail annoncele",
           style: GoogleFonts.roboto(
             textStyle: const TextStyle(
               fontSize: 20,
@@ -217,7 +216,7 @@ class DetailAnnoncePage extends StatelessWidget {
                     ),
                   ),
                   Text(
-                      "Description de l'annonce", // ${Log.annonce.description}
+                      "Description de l'annoncele", // ${Log.annonce.description}
                       style: GoogleFonts.roboto(
                           textStyle: const TextStyle(
                             fontSize: 12,))),

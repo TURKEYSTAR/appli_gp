@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: (FirebaseAuth.instance.currentUser != null) ? '/home' : '/',
       routes: {
         '/': (context) => OnboardingScreen(),
         '/home': (context) => HomePage(),
@@ -64,7 +64,7 @@ class MyApp extends StatelessWidget {
           address: '',
           phone: '',
         ),
-        '/annonce': (context) => AnnonceScreen(),
+        '/annoncele': (context) => AnnonceScreen(),
         '/annonce2': (context) => AnnonceScreen2(),
         '/reservation': (context) => ReservationScreen(),
         '/reservation2': (context) => ReservationScreen2(),
@@ -84,10 +84,11 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   User? currentUser;
   String? role;
+  String? userName;
 
   List<Widget> _pages = [
     HomeBody(),
-    ProfilePage(), // This will dynamically load based on user role
+    ProfilePage(),
     SettingsPage(),
   ];
 
@@ -109,7 +110,11 @@ class _HomePageState extends State<HomePage> {
       if (userDoc.exists) {
         setState(() {
           role = userDoc.data()!['role'];
+          userName = userDoc.data()!['username']; // Assuming 'name' is the field for the user's name
         });
+
+        // Show welcome back message
+
       }
     }
   }

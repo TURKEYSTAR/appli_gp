@@ -8,7 +8,7 @@ import '../widgets/custom_text_field1.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AnnonceScreen2 extends StatefulWidget {
-  final String? previousData; // To pass previous data if needed
+  final Map<String, dynamic>? previousData;// To pass previous data if needed
 
   const AnnonceScreen2({Key? key, this.previousData}) : super(key: key);
 
@@ -18,7 +18,7 @@ class AnnonceScreen2 extends StatefulWidget {
 
 class _AnnonceScreen2State extends State<AnnonceScreen2> {
   final _formKey = GlobalKey<FormState>();
-  Country? _selectedCountry;
+  Country? _selectedCountry2;
   DateTime? _date;
 
   // Controllers
@@ -28,6 +28,7 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
   TextEditingController phoneController = TextEditingController();
 
   String? selectedTransportMode;
+
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +68,12 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
                 hintText: "Ville d'arrivée",
                 type: TextInputType.text,
                 isObsecre: false,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Ce champ est requis';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 10),
               _buildPhoneField(),
@@ -111,10 +118,11 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
           ),
           onSelect: (Country country) {
             setState(() {
-              _selectedCountry = country;
+              _selectedCountry2 = country;
             });
             print('Country selected: ${country.name}');
           },
+
         );
       },
       child: Container(
@@ -127,7 +135,7 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(_selectedCountry == null ? "Pays de d'arrivée" : _selectedCountry!.name),
+            Text(_selectedCountry2 == null ? "Pays de d'arrivée" : _selectedCountry2!.name),
             Icon(Icons.arrow_drop_down),
           ],
         ),
@@ -154,6 +162,12 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
             borderSide: const BorderSide(color: Colors.black),
           ),
         ),
+        validator: (value) {
+          if (value == null ) {
+            return 'Ce champ est requis';
+          }
+          return null;
+        },
       ),
     );
   }
@@ -180,7 +194,8 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
         onComplete: (date) {
           setState(() {
             _date = date;
-          });
+          },
+          );
         },
       ),
     );
@@ -197,6 +212,12 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
               hintText: "Poids maximale à transporter",
               type: TextInputType.number,
               isObsecre: false,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Ce champ est requis';
+                }
+                return null;
+              },
             ),
           ),
           SizedBox(width: 2),
@@ -267,21 +288,38 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
   }
 
   Future<void> _saveAnnonce() async {
-    // Create a document in Firestore
-    await FirebaseFirestore.instance.collection('annonces').add({
-      'country': _selectedCountry?.name,
-      'ville': villeController.text,
-      'phone': phoneController.text,
-      'date': _date,
-      'poids': poidsController.text,
-      'prix': prixController.text,
-      // Add any other data you want to save
-    });
+    if (_date == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Veuillez sélectionner une date d'arrivée")),
+      );
+      return;
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Annonce enregistrée avec succès")),
-    );
+    if (widget.previousData != null) {
+      // Fusionne les données des deux pages
+      Map<String, dynamic> annonceData = {
+        ...widget.previousData!,
+        'pays_arrivee': _selectedCountry2?.name,
+        'ville_arrivee': villeController.text,
+        'num_arrivee': phoneController.text,
+        'date_arrivee': _date,
+        'poids_max': poidsController.text,
+        'prix_kg': prixController.text,
+      };
 
-    Navigator.pop(context); // Return to the previous screen
+      // Enregistre les données dans Firestore
+      await FirebaseFirestore.instance.collection('annonces').add(annonceData);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Annonce enregistrée avec succès")),
+      );
+
+      Navigator.pop(context); // Retourne à l'écran précédent
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erreur: Données manquantes")),
+      );
+    }
   }
+
 }

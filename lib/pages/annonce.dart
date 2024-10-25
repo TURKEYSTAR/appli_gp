@@ -17,13 +17,11 @@ class AnnonceScreen extends StatefulWidget {
 
 class _AnnonceScreenState extends State<AnnonceScreen> {
   final _formKey = GlobalKey<FormState>();
-  Country? _selectedCountry;
+  Country? _selectedCountry1;
   DateTime? _date;  // Variable pour stocker la date sélectionnée
 
   // Controllers
-  TextEditingController prenomController = TextEditingController();
-  TextEditingController nomController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
+  TextEditingController paysController = TextEditingController();
   TextEditingController villeController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController datePickerController = TextEditingController();
@@ -180,7 +178,7 @@ class _AnnonceScreenState extends State<AnnonceScreen> {
                             ),
                             onSelect: (Country country) {
                               setState(() {
-                                _selectedCountry = country; // Stocker le pays sélectionné
+                                _selectedCountry1 = country; // Stocker le pays sélectionné
                               });
                               print('Country selected: ${country.name}'); // Utilise seulement le nom du pays
                             },
@@ -197,9 +195,9 @@ class _AnnonceScreenState extends State<AnnonceScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(_selectedCountry == null
+                              Text(_selectedCountry1 == null
                                   ? "Pays de départ"
-                                  : _selectedCountry!.name), // Affiche seulement le nom du pays
+                                  : _selectedCountry1!.name), // Affiche seulement le nom du pays
                               Icon(Icons.arrow_drop_down),
                             ],
                           ),
@@ -221,6 +219,7 @@ class _AnnonceScreenState extends State<AnnonceScreen> {
                   width: MediaQuery.of(context).size.width / 1.3,
                   child: IntlPhoneField(
                     keyboardType: TextInputType.phone,
+                    controller: phoneController,
                     decoration: InputDecoration(
                       labelText: 'Numéro de téléphone de départ',
                       fillColor: Colors.white70,
@@ -240,6 +239,12 @@ class _AnnonceScreenState extends State<AnnonceScreen> {
                         ),
                       ),
                     ),
+                    validator: (value) {
+                      if (value == null ) {
+                        return 'Ce champ est requis';
+                      }
+                      return null;
+                    },
                   ),
                 ),
                 SizedBox(height: 10),
@@ -293,9 +298,20 @@ class _AnnonceScreenState extends State<AnnonceScreen> {
                   ),
                   onPressed: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const AnnonceScreen2()));// Action à réaliser lors du clic sur le bouton
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AnnonceScreen2(
+                          previousData: {
+                            'pays_depart': _selectedCountry1?.name,
+                            'ville_depart': villeController.text,
+                            'num_depart': phoneController.text,
+                            'date_depart': _date,
+                            'mode': selectedTransportMode,
+                          },
+                        ),
+                      ),
+                    );
+                    // Action à réaliser lors du clic sur le bouton
                   },
                   child: Row(
                     mainAxisSize: MainAxisSize.min, // Garde le bouton compact

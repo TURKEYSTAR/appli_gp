@@ -5,6 +5,7 @@ class CustomTextField1 extends StatelessWidget {
   final TextEditingController? controller;
   final String? hintText;
   final TextInputType type;
+  final FormFieldValidator<String>? validator;
   bool? isObsecre = true;
   bool? enabled = true;
 
@@ -15,6 +16,7 @@ class CustomTextField1 extends StatelessWidget {
     this.isObsecre,
     required this.type,
     this.enabled,
+    this.validator,
   }) : super(key: key);
 
   @override

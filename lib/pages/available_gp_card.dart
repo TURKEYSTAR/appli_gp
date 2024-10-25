@@ -1,13 +1,27 @@
 import 'package:flutter/material.dart';
 
 class AvailableGPCard extends StatelessWidget {
+  final String villeDepart;
+  final String paysDepart;
+  final String villeArrivee;
+  final String paysArrivee;
+  final DateTime dateDepart;
+
+  AvailableGPCard({
+    required this.villeDepart,
+    required this.paysDepart,
+    required this.villeArrivee,
+    required this.paysArrivee,
+    required this.dateDepart,
+  });
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
-        padding: EdgeInsets.all(10), // Ensure some padding around the card
+        padding: EdgeInsets.all(10),
         child: Column(
-          mainAxisSize: MainAxisSize.min,  // Prevents overflow by not expanding unnecessarily
+          mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -15,24 +29,15 @@ class AvailableGPCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          'Seoul ',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        Image.asset(
-                          'assets/flags/korea_flag.png',
-                          width: 16,
-                          height: 16,
-                        ),
-                      ],
+                    Text(
+                      villeDepart,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
                     ),
                     Text(
-                      'South Korea',
+                      paysDepart,
                       style: TextStyle(color: Colors.grey),
                     ),
                   ],
@@ -41,17 +46,17 @@ class AvailableGPCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      '21',
+                      dateDepart.day.toString(),
                       style: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      'September',
+                      '${dateDepart.month}',  // Format month to string if needed
                       style: TextStyle(color: Colors.black54),
                     ),
-                    Text('2024'),
+                    Text(dateDepart.year.toString()),
                   ],
                 ),
               ],
@@ -63,24 +68,15 @@ class AvailableGPCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          'Dakar ',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        Image.asset(
-                          'assets/flags/senegal_flag.png',
-                          width: 16,
-                          height: 16,
-                        ),
-                      ],
+                    Text(
+                      villeArrivee,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
                     ),
                     Text(
-                      'Sénégal',
+                      paysArrivee,
                       style: TextStyle(color: Colors.grey),
                     ),
                   ],

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../pages/transporteur_card.dart';
 import '../pages/available_gp_card.dart';
@@ -10,8 +12,13 @@ class HomeBody extends StatefulWidget {
 class _HomeBodyState extends State<HomeBody> {
   String _selectedTab = "Annonces";
 
-  final List<String> transporteurs = ["Transporteur 1", "Transporteur 2", "Transporteur 3"];
-  final List<String> annonces = ["Annonce 1", "Annonce 2", "Annonce 3"];
+  // Fetch annonces from Firestore
+  Stream<List<DocumentSnapshot>> fetchAnnonces() {
+    return FirebaseFirestore.instance
+        .collection('annonces')
+        .snapshots()
+        .map((snapshot) => snapshot.docs);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +67,9 @@ class _HomeBodyState extends State<HomeBody> {
 
           SizedBox(height: 20),
 
+          // Added part: horizontal scroll and transporteurs row
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 19.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -97,6 +105,11 @@ class _HomeBodyState extends State<HomeBody> {
 
           SizedBox(height: 16),
 
+          Divider(
+            color: Colors.white,
+            thickness: 1,
+          ),
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
@@ -112,8 +125,8 @@ class _HomeBodyState extends State<HomeBody> {
                     'Annonces',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: _selectedTab == "Annonces" ? FontWeight.normal : FontWeight.normal,
-                      color: _selectedTab == "Annonces" ? Colors.black : Colors.grey,
+                      color: _selectedTab == "Annonces" ? Colors.black : Colors
+                          .grey,
                     ),
                   ),
                 ),
@@ -127,55 +140,76 @@ class _HomeBodyState extends State<HomeBody> {
                     'Transporteurs',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: _selectedTab == "Transporteurs" ? FontWeight.normal : FontWeight.normal,
-                      color: _selectedTab == "Transporteurs" ? Colors.black : Colors.grey,
+                      color: _selectedTab == "Transporteurs"
+                          ? Colors.black
+                          : Colors.grey,
                     ),
                   ),
                 ),
               ],
             ),
           ),
-
           SizedBox(height: 16),
 
-          Divider(
-            color: Colors.white,
-            thickness: 1,
-          ),
-
-          // List of Annonces or Transporteurs
-          Column(
-            children: List.generate(
-              _selectedTab == "Annonces" ? annonces.length : transporteurs.length,
-                  (index) {
-                return Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                      child: GestureDetector(
-                        onTap: () {
-                          if (_selectedTab == "Annonces") {
-                            // Navigate to details_annonce.dart
-                            Navigator.pushNamed(
-                              context,
-                              '/detailsAnnonce',
-                              arguments: annonces[index],  // Passing the selected annonce as an argument
-                            );
-                          }
-                        },
-                        child: _selectedTab == "Annonces"
-                            ? AvailableGPCard() // Replace with the widget displaying the Annonce
-                            : TransporteurCard(name: transporteurs[index]), // For Transporteurs
+          // Show the list of annonces even for visitors
+          _selectedTab == "Annonces"
+              ? StreamBuilder<List<DocumentSnapshot>>(
+            stream: fetchAnnonces(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(child: Text('Error fetching data'));
+              }
+              if (!snapshot.hasData) {
+                return Center(child: CircularProgressIndicator());
+              }
+              var annonces = snapshot.data!;
+              return Column(
+                children: List.generate(annonces.length, (index) {
+                  var annonce = annonces[index].data() as Map<String, dynamic>;
+                  return Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 16.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            final user = FirebaseAuth.instance.currentUser;
+                            if (user != null) {
+                              Navigator.pushReplacementNamed(context, '/detailsAnnonce', arguments: annonces[index]);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Please log in to view details.')),
+                              );
+                            }
+                          },
+                          child: AvailableGPCard(
+                            villeDepart: annonce['ville_depart'],
+                            paysDepart: annonce['pays_depart'],
+                            villeArrivee: annonce['ville_arrivee'],
+                            paysArrivee: annonce['pays_arrivee'],
+                            dateDepart: annonce['date_depart'].toDate(),
+                          ),
+                        ),
                       ),
-                    ),
-                    Divider(
-                      color: Colors.grey[200],
-                      thickness: 1,
-                      height: 10,
-                    ),
-                  ],
-                );
-              },
+                      Divider(
+                        color: Colors.grey[200],
+                        thickness: 1,
+                        height: 10,
+                      ),
+                    ],
+                  );
+                }),
+              );
+            },
+          )
+              : Column(
+            children: List.generate(
+              3,
+                  (index) =>
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: TransporteurCard(name: "Transporteur ${index + 1}"),
+                  ),
             ),
           ),
         ],

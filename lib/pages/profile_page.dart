@@ -138,12 +138,12 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.pushNamed(context, '/annonce');
+                      Navigator.pushReplacementNamed(context, '/annoncele');
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 12),
                       child: Text(
-                        'Créer une annonce',
+                        'Créer une annoncele',
                         style: TextStyle(fontSize: 20, color: Colors.white),
                       ),
                     ),

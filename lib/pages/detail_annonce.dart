@@ -1,34 +1,58 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flag/flag.dart';
+import 'package:country_picker/country_picker.dart';
+import 'package:intl/intl.dart';
 
 import '../main.dart';
 
-class DetailAnnoncePage extends StatelessWidget {
+class DetailAnnoncePage extends StatefulWidget {
+  @override
+  _DetailAnnoncePageState createState() => _DetailAnnoncePageState();
+}
 
+class _DetailAnnoncePageState extends State<DetailAnnoncePage> {
   XFile? imageXFile;
   final ImagePicker _picker = ImagePicker();
 
+  String? getCountryCodeFromName(String countryName) {
+    final country = Country.tryParse(countryName);
+    return country?.countryCode; // Return country code if found
+  }
+
+  IconData getTransportIcon(String mode) {
+    switch (mode.toLowerCase()) {
+      case 'avion':
+        return Icons.airplanemode_active;
+      case 'bateau':
+        return Icons.directions_boat;
+      case 'voiture':
+        return Icons.directions_car;
+      default:
+        return Icons.help_outline; // Default icon if mode not recognized
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final annonceData = args?['annonce'] as Map<String, dynamic>?;
+    final userData = args?['userData'] as Map<String, dynamic>?;
+    final countryCode = annonceData != null ? getCountryCodeFromName(annonceData['pays_depart']) : null;
+    final countryCode2 = annonceData != null ? getCountryCodeFromName(annonceData['pays_arrivee']) : null;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomePage(), // Retourne à l'écran précédent
-              ),
-            );
-          },
+          onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
         title: Text(
-          "Detail annoncele",
+          "Detail annonce",
           style: GoogleFonts.roboto(
             textStyle: const TextStyle(
               fontSize: 20,
@@ -40,337 +64,173 @@ class DetailAnnoncePage extends StatelessWidget {
         backgroundColor: Colors.black54,
       ),
       backgroundColor: const Color(0xFFE0E0E0),
-
-      // Pour toute la largeur du body
-      body: Center( // Center pour centrer horizontalement tout le contenu
+      body: Center(
         child: Container(
-          width: MediaQuery.of(context).size.width / 1.1, // Même largeur pour tout le body
+          width: MediaQuery.of(context).size.width * 0.9,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Espace entre l'AppBar et le premier Row
               const SizedBox(height: 30),
-
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 20,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    alignment: Alignment.center,
-                    child: CircleAvatar(
-                      radius: MediaQuery.of(context).size.width * 0.05,
-                      backgroundColor: Colors.white,
-                      backgroundImage: imageXFile == null
-                          ? null
-                          : FileImage(
-                        File(imageXFile!.path),
-                      ),
-                      child: imageXFile == null
-                          ? Icon(
-                        Icons.person,
-                        size: MediaQuery.of(context).size.width * 0.07,
-                        color: Colors.black,
-                      )
-                          : null,
-                    ),
-                  ),
-
-                  // Espace entre l'icône et le texte
-                  const SizedBox(width: 15),
-
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Mariiix", // ${Log.annonce.nom}
-                        style: GoogleFonts.roboto(
-                          textStyle: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                      const Text(
-                        "Mariama Dib Faye", // ${Log.annonce.adresse}
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
+              _buildUserRow(userData),
               const SizedBox(height: 20),
-              
-              Divider(
-                color: Colors.grey,
-                thickness: 1,
-              ),
-              // Espace entre le premier Row et le contenu suivant
+              const Divider(color: Colors.grey),
               const SizedBox(height: 30),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                      children: [
-                        // Ligne au-dessus de l'icône
-                        Container(
-                          width: 2, // Épaisseur de la ligne
-                          height: 30, // Ajuste la hauteur si nécessaire
-                          color: Colors.grey, // Couleur de la ligne
-                        ),
-                        _buildStepIcon(Icons.airplane_ticket_outlined, Colors.black),
-                        // Ligne en dessous de l'icône
-                        Container(
-                          width: 2, // Épaisseur de la ligne
-                          height: 30, // Ajuste la hauteur si nécessaire
-                          color: Colors.grey, // Couleur de la ligne
-                        ),
-                      ],
-                    ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Row(
-                        children: <Widget>[
-                          Text(
-                            'Seoul',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(width: 10),
-                          Flag.fromString(
-                      'KR',
-                            height: 15,
-                       width: 15,
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            'South Korea',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        '18/10/2024',
-                        style: TextStyle(
-                          color: Colors.black.withOpacity(0.5),
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                      const Row(
-                        children: <Widget>[
-                          Text(
-                            'Dakar',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(width: 10),
-                          Flag.fromString(
-                            'SN',
-                            height: 15,
-                            width: 15,
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            'Sénégal',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        '28/10/2024',
-                        style: TextStyle(
-                          color: Colors.black.withOpacity(0.5),
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Spacer(),
-                  Icon(
-                    Icons.airplanemode_active,
-                    size: 120, // Ajuste la taille de l'icône
-                    color: Colors.grey,
-                  ),
-                ],
-              ),
+              _buildLocationRow(annonceData, countryCode, countryCode2),
               const SizedBox(height: 30),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Divider(
-                      color: Colors.grey, // Couleur de la ligne
-                      thickness: 1, // Épaisseur de la ligne
-                    ),
-                  ),
-                  Text(
-                      "Description de l'annoncele", // ${Log.annonce.description}
-                      style: GoogleFonts.roboto(
-                          textStyle: const TextStyle(
-                            fontSize: 12,))),
-                  Expanded(
-                    child: Divider(
-                      color: Colors.grey, // Couleur de la ligne
-                      thickness: 1, // Épaisseur de la ligne
-                    ),
-                  ),
-                ]
-              ),
-
-              const SizedBox(height: 30),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center, // Centrer verticalement
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width / 1.3,
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-                    decoration: BoxDecoration(
-                      color: Colors.white70,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.black),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.4),
-                          blurRadius: 5,
-                          offset: const Offset(0, 5),
-                        )
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        "Poids maximale 100kg",
-                        style: GoogleFonts.roboto(
-                          textStyle: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Container(
-                    width: MediaQuery.of(context).size.width / 1.3,
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-                    decoration: BoxDecoration(
-                      color: Colors.white70,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.black),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.4),
-                          blurRadius: 5,
-                          offset: const Offset(0, 5),
-                        )
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        "Prix/kg 3000 Fcfa",
-                        style: GoogleFonts.roboto(
-                          textStyle: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Container(
-                    width: MediaQuery.of(context).size.width / 1.3,
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-                    decoration: BoxDecoration(
-                      color: Colors.white70,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.black),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.4),
-                          blurRadius: 5,
-                          offset: const Offset(0, 5),
-                        )
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        "Telephone +221 775554874",
-                        style: GoogleFonts.roboto(
-                          textStyle: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  Padding(
-                    padding:  EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.12,), // Ajoute un peu de padding sur les côtés
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center, // Aligne le bouton à droite
-                      children: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 85, vertical: 15), // Ajuste la taille du bouton
-                            backgroundColor: Colors.black, // Couleur de fond du bouton
-                          ),
-                          onPressed: () {
-                            //Navigator.push(
-                            // context,
-                            //MaterialPageRoute(
-                            //builder: (context) => const AnnonceScreen2()));// Action à réaliser lors du clic sur le bouton
-                          },
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min, // Garde le bouton compact
-                            children: [
-                              Text(
-                                'Reserver'.toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-
-
+              _buildDescriptionSection(),
+              const SizedBox(height: 20),
+              _buildDetailsSection(annonceData),
+              const SizedBox(height: 15),
+              _buildReservationButton(),
             ],
           ),
         ),
       ),
     );
   }
-}
-Widget _buildStepIcon(IconData icon, Color color) {
-  return Container(
-    padding: const EdgeInsets.all(10),
-    child: Icon(
-      icon,
-      color: color,
-    ),
-  );
+
+  Widget _buildUserRow(Map<String, dynamic>? userData) {
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 30,
+          backgroundColor: Colors.white,
+          backgroundImage: imageXFile == null ? null : FileImage(File(imageXFile!.path)),
+          child: imageXFile == null
+              ? Icon(Icons.person, size: 35, color: Colors.black)
+              : null,
+        ),
+        const SizedBox(width: 15),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              userData?['username'] ?? 'Unknown User', // Uses 'Unknown User' if null
+              style: GoogleFonts.roboto(
+                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+              ),
+            ),
+            Text(
+              '${userData?['prenom'] ?? ''} ${userData?['nom'] ?? ''}'.trim(),
+              style: const TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLocationRow(Map<String, dynamic>? annonceData, String? countryCode, String? countryCode2) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          children: [
+            Container(width: 2, height: 30, color: Colors.grey),
+            _buildStepIcon(Icons.airplane_ticket_outlined, Colors.black),
+            Container(width: 2, height: 30, color: Colors.grey),
+          ],
+        ),
+        const SizedBox(width: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildLocationDetails(annonceData?['ville_depart'], countryCode, annonceData?['pays_depart']),
+            const SizedBox(height: 5),
+            Text(
+              annonceData?['date_depart'] is Timestamp
+                  ? DateFormat('dd/MM/yyyy').format((annonceData?['date_depart'] as Timestamp).toDate())
+                  : 'Unknown Date',
+              style: TextStyle(color: Colors.black54, fontSize: 12),
+            ),
+            const SizedBox(height: 20),
+            _buildLocationDetails(annonceData?['ville_arrivee'], countryCode2, annonceData?['pays_arrivee']),
+            const SizedBox(height: 5),
+            Text(
+              annonceData?['date_arrivee'] is Timestamp
+                  ? DateFormat('dd/MM/yyyy').format((annonceData?['date_arrivee'] as Timestamp).toDate())
+                  : 'Unknown Date',
+              style: TextStyle(color: Colors.black54, fontSize: 12),
+            ),
+          ],
+        ),
+        const Spacer(),
+        Icon(getTransportIcon(annonceData?['mode'] ?? 'unknown'), size: 100, color: Colors.grey),
+      ],
+    );
+  }
+
+  Widget _buildLocationDetails(String? city, String? countryCode, String? country) {
+    return Row(
+      children: [
+        Text(city ?? 'Unknown City', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const SizedBox(width: 10),
+        if (countryCode != null) Flag.fromString(countryCode, height: 15, width: 15),
+        const SizedBox(width: 10),
+        Text(country ?? 'Unknown Country', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
+  Widget _buildDescriptionSection() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Expanded(child: Divider(color: Colors.grey)),
+        Text("Description de l'annonce", style: GoogleFonts.roboto(textStyle: const TextStyle(fontSize: 12))),
+        Expanded(child: Divider(color: Colors.grey)),
+      ],
+    );
+  }
+
+  Widget _buildDetailsSection(Map<String, dynamic>? annonceData) {
+    return Column(
+      children: [
+        _buildDetailBox("Poids maximale ${annonceData?['poids_max'] ?? 'N/A'}"),
+        const SizedBox(height: 5),
+        _buildDetailBox("Prix/kg ${annonceData?['prix_kg'] ?? 'N/A'}"),
+        const SizedBox(height: 5),
+        _buildDetailBox("Telephone ${annonceData?['num_depart'] ?? 'N/A'}"),
+      ],
+    );
+  }
+
+  Widget _buildDetailBox(String text) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.8,
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
+      decoration: BoxDecoration(
+        color: Colors.white70,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.black),
+        boxShadow: [
+          BoxShadow(color: Colors.grey.withOpacity(0.4), blurRadius: 5, offset: const Offset(0, 5)),
+        ],
+      ),
+      child: Center(child: Text(text, style: GoogleFonts.roboto(fontWeight: FontWeight.bold, fontSize: 14))),
+    );
+  }
+
+  Widget _buildReservationButton() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.1),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          backgroundColor: Colors.black,
+        ),
+        onPressed: () {},
+        child: const Text("Reservation", style: TextStyle(color: Colors.white)),
+      ),
+    );
+  }
+
+  Widget _buildStepIcon(IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+      child: Icon(icon, color: color, size: 25),
+    );
+  }
 }

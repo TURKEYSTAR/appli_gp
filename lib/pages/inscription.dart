@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:appli_gp/pages/inscription1.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import '../widgets/header_widget.dart';
 import '../widgets/custom_text_field.dart';
+import 'log.dart';
 
 class InscriptionScreen extends StatefulWidget {
   const InscriptionScreen({Key? key}) : super(key: key);
@@ -194,6 +196,37 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 20),
+
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: MediaQuery.of(context).size.width * 0.1,
+                    ),
+                    child: RichText(
+                      text: TextSpan(
+                        text: "Vous avez déjà un compte? ",
+                        style: const TextStyle(color: Colors.black),
+                        children: [
+                          TextSpan(
+                            text: "Connectez-vous",
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const LoginScreen2(),
+                                  ),
+                                );
+                              },
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),

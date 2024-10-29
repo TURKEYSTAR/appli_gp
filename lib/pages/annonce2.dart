@@ -1,11 +1,14 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:appli_gp/pages/annonce.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:date_format_field/date_format_field.dart';
 import '../widgets/custom_text_field1.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:currency_picker/currency_picker.dart';
 
 class AnnonceScreen2 extends StatefulWidget {
   final Map<String, dynamic>? previousData;// To pass previous data if needed
@@ -20,7 +23,12 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
   final _formKey = GlobalKey<FormState>();
   Country? _selectedCountry2;
   DateTime? _date;
+  String _selectedCurrency = 'EUR';
 
+  String getCurrencySymbol(String currencyCode) {
+    var format = NumberFormat.simpleCurrency(name: currencyCode);
+    return format.currencySymbol;
+  }
   // Controllers
   TextEditingController poidsController = TextEditingController();
   TextEditingController prixController = TextEditingController();
@@ -237,13 +245,54 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
       child: Row(
         children: [
           Expanded(
-            child: CustomTextField1(
+            child: TextField(
               controller: prixController,
-              hintText: "Prix /kg ",
-              type: TextInputType.number,
-              isObsecre: false,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'Prix/kg',
+                fillColor: Colors.white70,
+                filled: true,
+                prefixIcon: GestureDetector(
+                  onTap: () {
+                    showCurrencyPicker(
+                      context: context,
+                      showFlag: true,
+                      showCurrencyName: true,
+                      showCurrencyCode: true,
+                      onSelect: (Currency currency) {
+                        setState(() {
+                          _selectedCurrency = currency.code;
+                        });
+                      },
+                    );
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,  // Limite la largeur du Row
+                    children: [
+                      Icon(Icons.arrow_drop_down),
+                      Text(getCurrencySymbol(_selectedCurrency)),
+                      SizedBox(width:7),
+                    ],
+                  ),
+                ),
+                contentPadding:
+                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: const BorderSide(
+                    color: Colors.black,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: const BorderSide(
+                    color: Colors.black,
+                  ),
+                ),
+              ),
             ),
           ),
+
           SizedBox(width: 2),
           Icon(
             Icons.money,
@@ -295,26 +344,37 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
       return;
     }
 
+    final User? user = FirebaseAuth.instance.currentUser; // Récupère l'utilisateur actuel
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erreur: Utilisateur non connecté")),
+      );
+      return;
+    }
+
+    final String userId = user.uid; // Récupère l'ID de l'utilisateur
+
     if (widget.previousData != null) {
-      // Fusionne les données des deux pages
       Map<String, dynamic> annonceData = {
         ...widget.previousData!,
+        'user_id': userId, // Ajoute l'ID de l'utilisateur
         'pays_arrivee': _selectedCountry2?.name,
         'ville_arrivee': villeController.text,
         'num_arrivee': phoneController.text,
         'date_arrivee': _date,
         'poids_max': poidsController.text,
-        'prix_kg': prixController.text,
+        'prix_kg': '${prixController.text} ${getCurrencySymbol(_selectedCurrency)}',
       };
 
       // Enregistre les données dans Firestore
       await FirebaseFirestore.instance.collection('annonces').add(annonceData);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Annonce enregistrée avec succès")),
+        SnackBar(content: Text("Annonce enregistrée avec succès"), backgroundColor: Colors.green,),
       );
 
-      Navigator.pop(context); // Retourne à l'écran précédent
+      // Navigate to the Profile page after successful submission
+      Navigator.pushReplacementNamed(context, '/home', arguments: 1);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Erreur: Données manquantes")),

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:appli_gp/firebase_auth_impl/firebase_auth_services.dart';
+import 'package:flutter/gestures.dart';
 import 'package:appli_gp/pages/log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -68,6 +69,21 @@ class _InscriptionScreen2State extends State<InscriptionScreen2> {
       );
 
       if (user != null) {
+        // Show a snackbar with the success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Inscription réussie avec succès'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Sign out the user so they aren't logged in automatically
+        await FirebaseAuth.instance.signOut();
+
+        // Delay to let the snackbar message appear
+        await Future.delayed(Duration(seconds: 2));
+
+        // Navigate to the login page
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginScreen2()),
@@ -75,6 +91,7 @@ class _InscriptionScreen2State extends State<InscriptionScreen2> {
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -243,6 +260,37 @@ class _InscriptionScreen2State extends State<InscriptionScreen2> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 20),
+
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: MediaQuery.of(context).size.width * 0.1,
+                    ),
+                    child: RichText(
+                      text: TextSpan(
+                        text: "Vous avez déjà un compte? ",
+                        style: const TextStyle(color: Colors.black),
+                        children: [
+                          TextSpan(
+                            text: "Connectez-vous",
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const LoginScreen2(),
+                                  ),
+                                );
+                              },
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,197 +18,143 @@ class _ReinitialisationScreenState extends State<ReinitialisationScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
 
-//image picker
+  // Image picker
   XFile? imageXFile;
   final ImagePicker _picker = ImagePicker();
 
-  String? selectedValue;
-//location
-  //Position? position;
-  //List<Placemark>? placeMarks;
-
-//address name variable
-  String completeAddress = "";
-
-//seller image url
-  String sellerImageUrl = "";
-
-//function for getting current location
-
-
-//function for getting image
   Future<void> _getImage() async {
     imageXFile = await _picker.pickImage(source: ImageSource.gallery);
-
-    setState(() {
-      imageXFile;
-    });
+    setState(() {}); // Updates the state to show the new image and color
   }
-
-//Form Validation
-
-
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFE0E0E0),
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Stack(
-                children: [
-                  const SizedBox(
-                    height: 150,
-                    child: HeaderWidget(
-                      150,
-                      false,
-                      Icons.add,
-                    ),
-                  ),
-                  Positioned(
-                    top: 10,
-                    left: 10, // Adjust the position as needed
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const LoginScreen2()
-                            )
-                        );
-                      },
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 20,
-                          offset: const Offset(0, 5),
-                        )
-                      ],
-                    ),
-                    margin: const EdgeInsets.fromLTRB(25, 50, 25, 10),
-                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    alignment: Alignment.center,
-                    child: InkWell(
-                      onTap: () {
-                        _getImage();
-                      },
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: const Text("Réinitialisation"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const LoginScreen2()),
+                  (Route<dynamic> route) => false,
+            );
+          },
+        ),
+      ),
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 60),
+            Stack(
+              children: [
+                Center(
+                  child: InkWell(
+                    onTap: _getImage,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 500),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: imageXFile == null ? Colors.white : Colors.blueGrey,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 20,
+                            offset: const Offset(0, 5),
+                          )
+                        ],
+                      ),
+                      width: MediaQuery.of(context).size.width * 0.26,
+                      height: MediaQuery.of(context).size.width * 0.26,
                       child: CircleAvatar(
                         radius: MediaQuery.of(context).size.width * 0.13,
-                        backgroundColor: Colors.white,
+                        backgroundColor: Colors.transparent,
                         backgroundImage: imageXFile == null
                             ? null
-                            : FileImage(
-                          File(imageXFile!.path),
-                        ),
+                            : FileImage(File(imageXFile!.path)),
                         child: imageXFile == null
                             ? Icon(
                           Icons.person,
                           size: MediaQuery.of(context).size.width * 0.17,
-                          color: Colors.black,
+                          color: Colors.grey,
                         )
                             : null,
                       ),
                     ),
                   ),
-                ],
-              ),
-
-              const SizedBox(height: 50),
-              Text(
-                "Réinitialisez votre mot de passe ",
-                style: GoogleFonts.roboto(
-                  textStyle: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    fontStyle: FontStyle.italic,
-                    color: Colors.black,
-                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 60),
+            Text(
+              "Réinitialisez votre mot de passe",
+              style: GoogleFonts.roboto(
+                textStyle: const TextStyle(
+                  fontSize: 17,
+                  color: Colors.black,
                 ),
               ),
-              const SizedBox(height: 50),
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    CustomTextField(
-                      data: Icons.email,
-                      controller: emailController,
-                      hintText: "email",
-                      type: TextInputType.text,
-                      isObsecre: false,
-                    ),
-                    ],
-                    ),
-
+            ),
+            const SizedBox(height: 20),
+            Form(
+              key: _formKey,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: CustomTextField(
+                  data: Icons.email,
+                  controller: emailController,
+                  hintText: "Email",
+                  type: TextInputType.emailAddress,
                 ),
-              const SizedBox(height: 30),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 28),
-                child: Container(
-                  decoration: BoxDecoration(
-                    boxShadow: const [
-                      BoxShadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 4),
-                          blurRadius: 5.0)
-                    ],
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      stops: [0.0, 1.0],
-                      colors: [
-                        Colors.black,
-                        Colors.black,
-                      ],
-                    ),
-                    color: Colors.deepPurple.shade300,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: ElevatedButton(
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                      ),
-                      minimumSize:
-                      MaterialStateProperty.all(const Size(50, 50)),
-                      backgroundColor:
-                      MaterialStateProperty.all(Colors.transparent),
-                      shadowColor:
-                      MaterialStateProperty.all(Colors.transparent),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(40, 10, 40, 10),
-                      child: Text(
-                        "Envoyer".toUpperCase(),
-                        style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
+              ),
+            ),
+            const SizedBox(height: 30),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 75, vertical: 5),
+              child: Container(
+                decoration: BoxDecoration(
+                  boxShadow: const [
+                    BoxShadow(
+                        color: Colors.black26,
+                        offset: Offset(0, 4),
+                        blurRadius: 5.0)
+                  ],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0),
                       ),
                     ),
-                    onPressed: () {
-                      //signUpFormValidation();
-                    },
+                    minimumSize: WidgetStateProperty.all(const Size(50, 50)),
+                    backgroundColor: WidgetStateProperty.all(Colors.blueGrey),
+                    shadowColor: WidgetStateProperty.all(Colors.transparent),
                   ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(40, 10, 40, 10),
+                    child: Text(
+                      "Envoyer",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    //signUpFormValidation();
+                  },
                 ),
               ),
-
-            ],
-          ),
+            ),
+          ],
         ),
-      );
+      ),
+    );
   }
 }

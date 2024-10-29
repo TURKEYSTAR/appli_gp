@@ -44,7 +44,7 @@ class CustomTextField1 extends StatelessWidget {
         decoration: InputDecoration(
           hintText: hintText,
           labelText: hintText,
-          fillColor: Colors.white70,
+          fillColor: Colors.white,
           filled: true,
           contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
 

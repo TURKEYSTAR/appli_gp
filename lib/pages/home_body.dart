@@ -33,14 +33,8 @@ class _HomeBodyState extends State<HomeBody> {
             ),
           ),
           SizedBox(height: 16),
-
-          Divider(
-            color: Colors.white,
-            thickness: 1,
-          ),
-
+          Divider(color: Colors.white, thickness: 1),
           SizedBox(height: 16),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
@@ -57,14 +51,8 @@ class _HomeBodyState extends State<HomeBody> {
               ),
             ),
           ),
-
           SizedBox(height: 16),
-
-          Divider(
-            color: Colors.white,
-            thickness: 1,
-          ),
-
+          Divider(color: Colors.white, thickness: 1),
           SizedBox(height: 20),
 
           // Added part: horizontal scroll and transporteurs row
@@ -74,17 +62,11 @@ class _HomeBodyState extends State<HomeBody> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/images.png'),
-                  ),
+                  CircleAvatar(backgroundImage: AssetImage('assets/images/images.png')),
                   SizedBox(width: 8),
-                  CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/images.png'),
-                  ),
+                  CircleAvatar(backgroundImage: AssetImage('assets/images/images.png')),
                   SizedBox(width: 8),
-                  CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/images.png'),
-                  ),
+                  CircleAvatar(backgroundImage: AssetImage('assets/images/images.png')),
                   SizedBox(width: 8),
                   Icon(Icons.add),
                 ],
@@ -104,11 +86,7 @@ class _HomeBodyState extends State<HomeBody> {
           ),
 
           SizedBox(height: 16),
-
-          Divider(
-            color: Colors.white,
-            thickness: 1,
-          ),
+          Divider(color: Colors.white, thickness: 1),
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -125,8 +103,7 @@ class _HomeBodyState extends State<HomeBody> {
                     'Annonces',
                     style: TextStyle(
                       fontSize: 16,
-                      color: _selectedTab == "Annonces" ? Colors.black : Colors
-                          .grey,
+                      color: _selectedTab == "Annonces" ? Colors.black : Colors.grey,
                     ),
                   ),
                 ),
@@ -140,9 +117,7 @@ class _HomeBodyState extends State<HomeBody> {
                     'Transporteurs',
                     style: TextStyle(
                       fontSize: 16,
-                      color: _selectedTab == "Transporteurs"
-                          ? Colors.black
-                          : Colors.grey,
+                      color: _selectedTab == "Transporteurs" ? Colors.black : Colors.grey,
                     ),
                   ),
                 ),
@@ -165,29 +140,57 @@ class _HomeBodyState extends State<HomeBody> {
               var annonces = snapshot.data!;
               return Column(
                 children: List.generate(annonces.length, (index) {
-                  var annonce = annonces[index].data() as Map<String, dynamic>;
+                  var annonceData = annonces[index].data() as Map<String, dynamic>;
                   return Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8.0, horizontal: 16.0),
+                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                         child: GestureDetector(
-                          onTap: () {
-                            final user = FirebaseAuth.instance.currentUser;
-                            if (user != null) {
-                              Navigator.pushReplacementNamed(context, '/detailsAnnonce', arguments: annonces[index]);
-                            } else {
+                          onTap: () async {
+                            if (FirebaseAuth.instance.currentUser == null) {
+                              // Show Snackbar if not logged in
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Please log in to view details.')),
+                                SnackBar(content: Text('Veuillez vous connecter pour plus de détails')),
+                              );
+                            } else {
+                              // Fetch user details from Firestore using the userId from annonceData
+                              String? userId = annonceData['user_id'] as String?;
+                              Map<String, dynamic>? userData;
+
+                              if (userId != null && userId.isNotEmpty) {
+                                DocumentSnapshot userDoc = await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(userId)
+                                      .get();
+
+                                if (userDoc.exists) {
+                                userData = userDoc.data() as Map<String, dynamic>?;
+                                // Proceed with using userData
+                                } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Utilisateur non trouvé.')),
+                                );
+                                }
+
+                              }
+
+                              // Navigate to details page with both annonceData and userData (if found)
+                              Navigator.pushNamed(
+                                context,
+                                '/detailsAnnonce',
+                                arguments: {
+                                  'annonce': annonceData,
+                                  'userData': userData, // Will be null if not found
+                                },
                               );
                             }
                           },
                           child: AvailableGPCard(
-                            villeDepart: annonce['ville_depart'],
-                            paysDepart: annonce['pays_depart'],
-                            villeArrivee: annonce['ville_arrivee'],
-                            paysArrivee: annonce['pays_arrivee'],
-                            dateDepart: annonce['date_depart'].toDate(),
+                            villeDepart: annonceData['ville_depart'] ?? 'Unknown',
+                            paysDepart: annonceData['pays_depart'] ?? 'Unknown',
+                            villeArrivee: annonceData['ville_arrivee'] ?? 'Unknown',
+                            paysArrivee: annonceData['pays_arrivee'] ?? 'Unknown',
+                            dateDepart: (annonceData['date_depart'] as Timestamp?)?.toDate() ?? DateTime.now(),
                           ),
                         ),
                       ),
@@ -205,11 +208,10 @@ class _HomeBodyState extends State<HomeBody> {
               : Column(
             children: List.generate(
               3,
-                  (index) =>
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: TransporteurCard(name: "Transporteur ${index + 1}"),
-                  ),
+                  (index) => Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TransporteurCard(name: "Transporteur ${index + 1}"),
+              ),
             ),
           ),
         ],

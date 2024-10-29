@@ -70,7 +70,7 @@ class MyApp extends StatelessWidget {
         '/reservation2': (context) => ReservationScreen2(),
         '/reservation3': (context) => ReservationScreen3(),
         '/detailsAnnonce': (context) => DetailAnnoncePage(),
-      },
+    },
     );
   }
 }
@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
   String? role;
   String? userName;
 
-  List<Widget> _pages = [
+  final List<Widget> _pages = [
     HomeBody(),
     ProfilePage(),
     SettingsPage(),
@@ -96,6 +96,15 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _checkUser();
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      // Check for arguments passed to this page
+      final args = ModalRoute.of(context)?.settings.arguments as int?;
+      if (args != null) {
+        setState(() {
+          _selectedIndex = args;
+        });
+      }
+    });
   }
 
   Future<void> _checkUser() async {
@@ -110,11 +119,8 @@ class _HomePageState extends State<HomePage> {
       if (userDoc.exists) {
         setState(() {
           role = userDoc.data()!['role'];
-          userName = userDoc.data()!['username']; // Assuming 'name' is the field for the user's name
+          userName = userDoc.data()!['username'];
         });
-
-        // Show welcome back message
-
       }
     }
   }
@@ -184,3 +190,4 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+

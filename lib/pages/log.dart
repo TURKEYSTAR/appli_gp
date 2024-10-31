@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:appli_gp/pages/inscription.dart';
 import 'package:appli_gp/pages/reinitialisation.dart';
-import 'package:appli_gp/firebase_auth_impl/firebase_auth_services.dart';
+import 'package:appli_gp/firebase_services/firebase_auth_services.dart';
 
 class LoginScreen2 extends StatefulWidget {
   const LoginScreen2({Key? key}) : super(key: key);

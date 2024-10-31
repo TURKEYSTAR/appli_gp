@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:appli_gp/firebase_auth_impl/firebase_auth_services.dart';
+import 'package:appli_gp/firebase_services/firebase_auth_services.dart';
 import 'package:appli_gp/pages/log.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

@@ -33,7 +33,8 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
   TextEditingController poidsController = TextEditingController();
   TextEditingController prixController = TextEditingController();
   TextEditingController villeController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
+
+  String? completePhoneNumber;
 
   String? selectedTransportMode;
 
@@ -155,7 +156,6 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
     return Container(
       width: MediaQuery.of(context).size.width / 1.3,
       child: IntlPhoneField(
-        controller: phoneController,
         decoration: InputDecoration(
           labelText: "Numéro de téléphone d'arrivée",
           fillColor: Colors.white70,
@@ -170,6 +170,11 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
             borderSide: const BorderSide(color: Colors.black),
           ),
         ),
+        onChanged: (phone) {
+          setState(() {
+            completePhoneNumber = phone.completeNumber; // Met à jour le numéro complet
+          });// Sauvegarde le numéro complet
+        },
         validator: (value) {
           if (value == null ) {
             return 'Ce champ est requis';
@@ -360,7 +365,7 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
         'user_id': userId, // Ajoute l'ID de l'utilisateur
         'pays_arrivee': _selectedCountry2?.name,
         'ville_arrivee': villeController.text,
-        'num_arrivee': phoneController.text,
+        'num_arrivee': completePhoneNumber ?? '',
         'date_arrivee': _date,
         'poids_max': poidsController.text,
         'prix_kg': '${prixController.text} ${getCurrencySymbol(_selectedCurrency)}',

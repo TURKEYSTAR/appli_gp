@@ -18,12 +18,12 @@ class AnnonceScreen extends StatefulWidget {
 class _AnnonceScreenState extends State<AnnonceScreen> {
   final _formKey = GlobalKey<FormState>();
   Country? _selectedCountry1;
-  DateTime? _date;  // Variable pour stocker la date sélectionnée
+  DateTime? _date;// Variable pour stocker la date sélectionnée
+  String? completePhoneNumber;
 
   // Controllers
   TextEditingController paysController = TextEditingController();
   TextEditingController villeController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
   TextEditingController datePickerController = TextEditingController();
 
   // Variable pour stocker le moyen de transport sélectionné
@@ -219,7 +219,6 @@ class _AnnonceScreenState extends State<AnnonceScreen> {
                   width: MediaQuery.of(context).size.width / 1.3,
                   child: IntlPhoneField(
                     keyboardType: TextInputType.phone,
-                    controller: phoneController,
                     decoration: InputDecoration(
                       labelText: 'Numéro de téléphone de départ',
                       fillColor: Colors.white70,
@@ -239,6 +238,11 @@ class _AnnonceScreenState extends State<AnnonceScreen> {
                         ),
                       ),
                     ),
+                    onChanged: (phone) {
+                      setState(() {
+                        completePhoneNumber = phone.completeNumber; // Met à jour le numéro complet
+                      });// Sauvegarde le numéro complet
+                    },
                     validator: (value) {
                       if (value == null ) {
                         return 'Ce champ est requis';
@@ -304,7 +308,7 @@ class _AnnonceScreenState extends State<AnnonceScreen> {
                           previousData: {
                             'pays_depart': _selectedCountry1?.name,
                             'ville_depart': villeController.text,
-                            'num_depart': phoneController.text,
+                            'num_depart': completePhoneNumber ?? '',
                             'date_depart': _date,
                             'mode': selectedTransportMode,
                           },

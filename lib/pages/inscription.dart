@@ -1,12 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 import 'package:appli_gp/pages/inscription1.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import '../widgets/header_widget.dart';
 import '../widgets/custom_text_field.dart';
-import 'log.dart';
 
 class InscriptionScreen extends StatefulWidget {
   const InscriptionScreen({Key? key}) : super(key: key);
@@ -21,7 +19,7 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
   TextEditingController nomController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController adressController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
+  String? completePhoneNumber;
 
   // Image picker
   XFile? imageXFile;
@@ -136,10 +134,11 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                           borderSide: BorderSide(color: Colors.grey.shade400),
                         ),
                       ),
-                      controller: phoneController,
                       initialCountryCode: 'SN',
                       onChanged: (phone) {
-                        print(phone.completeNumber);
+                        setState(() {
+                          completePhoneNumber = phone.completeNumber; // Met à jour le numéro complet
+                        });// Sauvegarde le numéro complet
                       },
                     ),
                   ),
@@ -169,7 +168,7 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                                   nom: nomController.text,
                                   email: emailController.text,
                                   address: adressController.text,
-                                  phone: phoneController.text,
+                                  phone: completePhoneNumber ?? '',
                                 ),
                               ),
                             );
@@ -196,37 +195,6 @@ class _InscriptionScreenState extends State<InscriptionScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: MediaQuery.of(context).size.width * 0.1,
-                    ),
-                    child: RichText(
-                      text: TextSpan(
-                        text: "Vous avez déjà un compte? ",
-                        style: const TextStyle(color: Colors.black),
-                        children: [
-                          TextSpan(
-                            text: "Connectez-vous",
-                            style: const TextStyle(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const LoginScreen2(),
-                                  ),
-                                );
-                              },
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
                 ],
               ),
             ),

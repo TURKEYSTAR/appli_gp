@@ -26,13 +26,13 @@ class _ReservationScreenState extends State<ReservationScreen2> {
   TextEditingController nomController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController adressController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
   TextEditingController weightController = TextEditingController();
   TextEditingController lengthController = TextEditingController();
   TextEditingController widthController = TextEditingController();
   TextEditingController heightController = TextEditingController();
   TextEditingController villeController = TextEditingController(); // Pour la ville
 
+  String? completePhoneNumber;
   String? selectedPackageType;
   String? selectedFragility;
   Country? _selectedCountry; // Store the selected country here
@@ -170,6 +170,11 @@ class _ReservationScreenState extends State<ReservationScreen2> {
                         ),
                       ),
                     ),
+                    onChanged: (phone) {
+                      setState(() {
+                        completePhoneNumber = phone.completeNumber; // Met à jour le numéro complet
+                      });// Sauvegarde le numéro complet
+                    },
                   ),
                 ),
 
@@ -281,9 +286,9 @@ class _ReservationScreenState extends State<ReservationScreen2> {
                   ),
                   onPressed: () {
                     Navigator.push(
-                       context,
+                        context,
                         MaterialPageRoute(
-                          builder: (context) => const ReservationScreen3()));// Action à réaliser lors du clic sur le bouton
+                            builder: (context) => const ReservationScreen3()));// Action à réaliser lors du clic sur le bouton
                   },
                   child: Row(
                     mainAxisSize: MainAxisSize.min, // Garde le bouton compact

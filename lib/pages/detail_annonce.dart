@@ -186,11 +186,11 @@ class _DetailAnnoncePageState extends State<DetailAnnoncePage> {
   Widget _buildDetailsSection(Map<String, dynamic>? annonceData) {
     return Column(
       children: [
-        _buildDetailBox("Poids maximale ${annonceData?['poids_max'] ?? 'N/A'}"),
+        _buildDetailBox("Poids maximale ${annonceData?['poids_max'] ?? 'N/A'} Kg"),
         const SizedBox(height: 5),
         _buildDetailBox("Prix/kg ${annonceData?['prix_kg'] ?? 'N/A'}"),
         const SizedBox(height: 5),
-        _buildDetailBox("Telephone ${annonceData?['num_depart'] ?? 'N/A'}"),
+        _buildDetailBox("Telephone ${annonceData?['num_depart'] ?? 'N/A'} / ${annonceData?['num_arrivee'] ?? 'N/A'} "),
       ],
     );
   }

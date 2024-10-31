@@ -26,13 +26,13 @@ class _ReservationScreenState extends State<ReservationScreen> {
   TextEditingController nomController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController adressController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
   TextEditingController weightController = TextEditingController();
   TextEditingController lengthController = TextEditingController();
   TextEditingController widthController = TextEditingController();
   TextEditingController heightController = TextEditingController();
   TextEditingController villeController = TextEditingController(); // Pour la ville
 
+  String? completePhoneNumber;
   String? selectedPackageType;
   String? selectedFragility;
   Country? _selectedCountry; // Store the selected country here
@@ -169,6 +169,11 @@ class _ReservationScreenState extends State<ReservationScreen> {
                         ),
                       ),
                     ),
+                    onChanged: (phone) {
+                      setState(() {
+                        completePhoneNumber = phone.completeNumber; // Met à jour le numéro complet
+                      });// Sauvegarde le numéro complet
+                    },
                   ),
                 ),
 
@@ -321,4 +326,3 @@ Widget _buildStepIcon(IconData icon, Color color) {
     ),
   );
 }
-

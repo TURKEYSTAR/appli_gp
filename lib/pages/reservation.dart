@@ -1,14 +1,8 @@
-import 'dart:io';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:appli_gp/pages/inscription.dart';
 import 'package:appli_gp/pages/log.dart';
 import 'package:country_picker/country_picker.dart';
-import 'package:appli_gp/pages/reservation2.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-
-import '../widgets/header_widget.dart';
 import '../widgets/custom_text_field1.dart';
 
 class ReservationScreen extends StatefulWidget {
@@ -39,6 +33,9 @@ class _ReservationScreenState extends State<ReservationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final annonceData = args?['annonce'] as Map<String, dynamic>?;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -285,10 +282,23 @@ class _ReservationScreenState extends State<ReservationScreen> {
                     backgroundColor: Colors.black, // Couleur de fond du bouton
                   ),
                   onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ReservationScreen2()));// Action à réaliser lors du clic sur le bouton
+                    Navigator.pushNamed(
+                      context,
+                      '/reservation2',
+                      arguments: {
+                        'annonce': annonceData,
+                        'previousData1': {
+                          'prenom_expediteur': prenomController.text,
+                          'nom_expediteur': nomController.text,
+                          'addresse_expediteur': adressController.text,
+                          'phone_expediteur': completePhoneNumber ?? '',
+                          'ville_expediteur': villeController.text,
+                          'pays_expediteur':  _selectedCountry?.name ?? '',
+                        },
+                        // Ajoutez d'autres informations de réservation au besoin
+                      },
+
+                    );// Action à réaliser lors du clic sur le bouton
                   },
                   child: Row(
                     mainAxisSize: MainAxisSize.min, // Garde le bouton compact

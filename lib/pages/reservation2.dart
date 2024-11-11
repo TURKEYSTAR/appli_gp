@@ -39,6 +39,10 @@ class _ReservationScreenState extends State<ReservationScreen2> {
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final annonceData = args?['annonce'];
+    final previousData1 = args?['previousData1'] as Map<String, dynamic>?;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -285,10 +289,29 @@ class _ReservationScreenState extends State<ReservationScreen2> {
                     backgroundColor: Colors.black, // Couleur de fond du bouton
                   ),
                   onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ReservationScreen3()));// Action à réaliser lors du clic sur le bouton
+                    // Collect new data from the second page
+                    final previousData2 = {
+                      'prenom_destinataire': prenomController.text,
+                      'nom_destinataire': nomController.text,
+                      'addresse_destinataire': adressController.text,
+                      'phone_destinataire': completePhoneNumber ?? '',
+                      'ville_destinataire': villeController.text,
+                      'pays_destinataire': _selectedCountry?.name ?? '',
+                    };
+
+                    // Combine previous and new data
+                    final combinedData = {
+                      'annonce': annonceData,
+                      'previousData1': previousData1,
+                      'previousData2': previousData2,
+                    };
+
+                    // Navigate to the next page with the combined data
+                    Navigator.pushNamed(
+                      context,
+                      '/reservation3',
+                      arguments: combinedData,
+                    );// Action à réaliser lors du clic sur le bouton
                   },
                   child: Row(
                     mainAxisSize: MainAxisSize.min, // Garde le bouton compact

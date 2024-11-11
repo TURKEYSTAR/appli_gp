@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'edit_profile_page.dart';
-import 'log.dart';  // Assuming this is your login screen
+import 'log.dart';
 
 class SettingsPage extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -9,7 +9,10 @@ class SettingsPage extends StatelessWidget {
   Future<void> _logout(BuildContext context) async {
     try {
       await _auth.signOut();
-      Navigator.pushReplacementNamed(context, '/log');  // Redirect to login screen after logging out
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => LoginScreen2()),
+            (Route<dynamic> route) => false,
+      );
     } catch (e) {
       print("Error logging out: $e");
       ScaffoldMessenger.of(context).showSnackBar(

@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:appli_gp/pages/inscription.dart';
 import 'package:appli_gp/pages/reinitialisation.dart';
 import 'package:appli_gp/firebase_services/firebase_auth_services.dart';
+import '../firebase_services/notifications_service.dart';
 
 class LoginScreen2 extends StatefulWidget {
   const LoginScreen2({Key? key}) : super(key: key);
@@ -19,13 +20,19 @@ class _LoginScreenState2 extends State<LoginScreen2> {
   TextEditingController passwordController = TextEditingController();
   final FirebaseAuthServices _authServices = FirebaseAuthServices();
   bool _isLoading = false;
+  final PushNotificationService _notificationService = PushNotificationService();
 
   @override
   void initState() {
     super.initState();
     _checkUserAuth();
+    _initNotifications();
   }
 
+
+  Future<void> _initNotifications() async {
+    await _notificationService.saveFCMToken();
+  }
   Future<void> _checkUserAuth() async {
     User? currentUser = FirebaseAuth.instance.currentUser;
 

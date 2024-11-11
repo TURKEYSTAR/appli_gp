@@ -1,8 +1,10 @@
+import 'package:appli_gp/pages/search_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../pages/transporteur_card.dart';
 import '../pages/available_gp_card.dart';
+import '../pages/transporteur_list.dart';
 
 class HomeBody extends StatefulWidget {
   @override
@@ -37,17 +39,26 @@ class _HomeBodyState extends State<HomeBody> {
           SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search here',
-                contentPadding: EdgeInsets.symmetric(vertical: 0),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide.none,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SearchPage()),
+                );
+              },
+              child: TextField(
+                enabled: false, // Disable text field on the main page
+                decoration: InputDecoration(
+                  hintText: 'Search here',
+                  contentPadding: EdgeInsets.symmetric(vertical: 0),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide.none,
+                  ),
+                  fillColor: Colors.white70,
+                  filled: true,
+                  prefixIcon: Icon(Icons.search),
                 ),
-                fillColor: Colors.white70,
-                filled: true,
-                prefixIcon: Icon(Icons.search),
               ),
             ),
           ),
@@ -205,15 +216,10 @@ class _HomeBodyState extends State<HomeBody> {
               );
             },
           )
-              : Column(
-            children: List.generate(
-              3,
-                  (index) => Padding(
+              : Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: TransporteurCard(name: "Transporteur ${index + 1}"),
+                child: TransporteurList(),
               ),
-            ),
-          ),
         ],
       ),
     );

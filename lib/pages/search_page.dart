@@ -12,19 +12,32 @@ class _SearchPageState extends State<SearchPage> {
   final TextEditingController searchController = TextEditingController();
   String selectedFilter = "Tout";  // Current filter selection
 
-  // Method to fetch annonces and users based on search query and filter
   Stream<List<Map<String, dynamic>>> searchFirestore(String query, String filter) {
+    // Convert search query to lowercase for case-insensitivity
+    final lowerCaseQuery = query.toLowerCase();
+
     Stream<List<Map<String, dynamic>>> annoncesStream = FirebaseFirestore.instance
         .collection('annonces')
-        .where('ville_depart', isGreaterThanOrEqualTo: query)
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => {...doc.data(), 'type': 'annonce'}).toList());
+        .map((snapshot) => snapshot.docs
+        .where((doc) {
+      final villeDepart = doc['ville_depart']?.toString().toLowerCase() ?? '';
+      final villeArrivee = doc['ville_arrivee']?.toString().toLowerCase() ?? '';
+      return villeDepart.contains(lowerCaseQuery) || villeArrivee.contains(lowerCaseQuery);
+    })
+        .map((doc) => {...doc.data(), 'type': 'annonce'})
+        .toList());
 
     Stream<List<Map<String, dynamic>>> usersStream = FirebaseFirestore.instance
         .collection('users')
-        .where('username', isGreaterThanOrEqualTo: query)
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => {...doc.data(), 'type': 'user'}).toList());
+        .map((snapshot) => snapshot.docs
+        .where((doc) {
+      final username = doc['username']?.toString().toLowerCase() ?? '';
+      return username.contains(lowerCaseQuery);
+    })
+        .map((doc) => {...doc.data(), 'type': 'user'})
+        .toList());
 
     if (filter == 'Annonces') {
       return annoncesStream;
@@ -78,7 +91,7 @@ class _SearchPageState extends State<SearchPage> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text('No results found'));
+                  return Center(child: Text('Aucun résultat trouvé'));
                 }
 
                 var results = snapshot.data!;
@@ -117,7 +130,7 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  // Widget to display Annonce layout similar to available_gp_card
+  // Widget to display Annonce layout in French
   Widget _buildAnnonceCard(Map<String, dynamic> annonce) {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -132,11 +145,11 @@ class _SearchPageState extends State<SearchPage> {
             ),
             SizedBox(height: 8),
             Text(
-              'Departure: ${annonce['ville_depart']}',
+              'Départ: ${annonce['ville_depart']}',
               style: TextStyle(fontSize: 14),
             ),
             Text(
-              'Destination: ${annonce['ville_arrivee']}',
+              'Arrivée: ${annonce['ville_arrivee']}',
               style: TextStyle(fontSize: 14),
             ),
             SizedBox(height: 8),
@@ -145,7 +158,7 @@ class _SearchPageState extends State<SearchPage> {
                 Icon(Icons.date_range, color: Colors.grey),
                 SizedBox(width: 8),
                 Text(
-                  'Date: ${annonce['date']}',
+                  'Date: ${annonce['date_depart']}',
                   style: TextStyle(fontSize: 14),
                 ),
               ],
@@ -166,7 +179,7 @@ class _SearchPageState extends State<SearchPage> {
           style: TextStyle(color: Colors.white),
         ),
       ),
-      title: Text(user['username'] ?? 'Unknown Username'),
+      title: Text(user['username'] ?? 'Nom d’utilisateur inconnu'),
       subtitle: Text('${user['prenom'] ?? ''} ${user['nom'] ?? ''}'),
       onTap: () {
         // Navigate to user's profile

@@ -19,6 +19,7 @@ import 'pages/log.dart';
 import 'pages/inscription.dart';
 import 'pages/reinitialisation.dart';
 import 'pages/inscription1.dart';
+import 'pages/tracking_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -70,7 +71,8 @@ class MyApp extends StatelessWidget {
         '/reservation2': (context) => ReservationScreen2(),
         '/reservation3': (context) => ReservationScreen3(),
         '/detailsAnnonce': (context) => DetailAnnoncePage(),
-    },
+        '/tracking': (context) => TrackingPage(),
+      },
     );
   }
 }
@@ -88,6 +90,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     HomeBody(),
+    TrackingPage(),
     ProfilePage(),
     SettingsPage(),
   ];
@@ -163,7 +166,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       body: Container(
-        padding: EdgeInsets.all(13),
+
         child: _pages[_selectedIndex],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -171,6 +174,10 @@ class _HomePageState extends State<HomePage> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home, size: 30, color: Colors.blueGrey),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.map, size: 30, color: Colors.blueGrey),
             label: '',
           ),
           BottomNavigationBarItem(

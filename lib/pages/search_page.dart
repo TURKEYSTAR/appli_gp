@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:async/async.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
+import 'details_profile_page.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -10,22 +12,26 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   String searchQuery = "";
   final TextEditingController searchController = TextEditingController();
-  String selectedFilter = "Tout";  // Current filter selection
+  String selectedFilter = "Tout"; // Filter selection
 
-  Stream<List<Map<String, dynamic>>> searchFirestore(String query, String filter) {
-    // Convert search query to lowercase for case-insensitivity
+  Stream<List<Map<String, dynamic>>> searchFirestore(
+      String query, String filter) {
     final lowerCaseQuery = query.toLowerCase();
 
-    Stream<List<Map<String, dynamic>>> annoncesStream = FirebaseFirestore.instance
+    Stream<List<Map<String, dynamic>>> annoncesStream = FirebaseFirestore
+        .instance
         .collection('annonces')
         .snapshots()
         .map((snapshot) => snapshot.docs
         .where((doc) {
-      final villeDepart = doc['ville_depart']?.toString().toLowerCase() ?? '';
-      final villeArrivee = doc['ville_arrivee']?.toString().toLowerCase() ?? '';
-      return villeDepart.contains(lowerCaseQuery) || villeArrivee.contains(lowerCaseQuery);
+      final villeDepart =
+          doc['ville_depart']?.toString().toLowerCase() ?? '';
+      final villeArrivee =
+          doc['ville_arrivee']?.toString().toLowerCase() ?? '';
+      return villeDepart.contains(lowerCaseQuery) ||
+          villeArrivee.contains(lowerCaseQuery);
     })
-        .map((doc) => {...doc.data(), 'type': 'annonce'})
+        .map((doc) => {...doc.data(), 'type': 'annonce', 'id': doc.id}) // Add the document ID
         .toList());
 
     Stream<List<Map<String, dynamic>>> usersStream = FirebaseFirestore.instance
@@ -36,16 +42,20 @@ class _SearchPageState extends State<SearchPage> {
       final username = doc['username']?.toString().toLowerCase() ?? '';
       return username.contains(lowerCaseQuery);
     })
-        .map((doc) => {...doc.data(), 'type': 'user'})
+        .map((doc) => {...doc.data(), 'type': 'user', 'id': doc.id}) // Add the document ID
         .toList());
 
+    // Handle filter-specific logic
     if (filter == 'Annonces') {
       return annoncesStream;
     } else if (filter == 'Utilisateurs') {
       return usersStream;
     } else {
-      return StreamZip([annoncesStream, usersStream])
-          .map((combined) => [...combined[0], ...combined[1]]);
+      // Combine streams manually for "Tout"
+      return Stream.fromFuture(Future.wait([
+        annoncesStream.first,
+        usersStream.first,
+      ])).map((results) => [...results[0], ...results[1]]);
     }
   }
 
@@ -75,7 +85,6 @@ class _SearchPageState extends State<SearchPage> {
       ),
       body: Column(
         children: [
-          // Filter buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -86,7 +95,9 @@ class _SearchPageState extends State<SearchPage> {
           ),
           Expanded(
             child: StreamBuilder<List<Map<String, dynamic>>>(
-              stream: searchQuery.isEmpty ? null : searchFirestore(searchQuery, selectedFilter),
+              stream: searchQuery.isEmpty
+                  ? null
+                  : searchFirestore(searchQuery, selectedFilter),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -112,7 +123,6 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  // Filter button widget
   Widget _buildFilterButton(String label) {
     return TextButton(
       onPressed: () {
@@ -124,52 +134,80 @@ class _SearchPageState extends State<SearchPage> {
         label,
         style: TextStyle(
           color: selectedFilter == label ? Colors.blue : Colors.black,
-          fontWeight: selectedFilter == label ? FontWeight.bold : FontWeight.normal,
+          fontWeight:
+          selectedFilter == label ? FontWeight.bold : FontWeight.normal,
         ),
       ),
     );
   }
 
-  // Widget to display Annonce layout in French
   Widget _buildAnnonceCard(Map<String, dynamic> annonce) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              annonce['ville_depart'] ?? 'No Ville',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Départ: ${annonce['ville_depart']}',
-              style: TextStyle(fontSize: 14),
-            ),
-            Text(
-              'Arrivée: ${annonce['ville_arrivee']}',
-              style: TextStyle(fontSize: 14),
-            ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.date_range, color: Colors.grey),
-                SizedBox(width: 8),
-                Text(
-                  'Date: ${annonce['date_depart']}',
-                  style: TextStyle(fontSize: 14),
-                ),
-              ],
-            ),
-          ],
+    return GestureDetector(
+      onTap: () async {
+        if (FirebaseAuth.instance.currentUser == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('Veuillez vous connecter pour plus de détails')),
+          );
+        } else {
+          String transporteurId = annonce['user_id'] ?? ''; // Replace with the document ID of the user
+          Map<String, dynamic>? userData;
+
+          if (transporteurId.isNotEmpty) {
+            DocumentSnapshot userDoc = await FirebaseFirestore.instance
+                .collection('users')
+                .doc(transporteurId) // Use the user document ID
+                .get();
+            if (userDoc.exists) {
+              userData = userDoc.data() as Map<String, dynamic>?;
+            }
+          }
+
+          Navigator.pushNamed(
+            context,
+            '/detailsAnnonce',
+            arguments: {
+              'annonce': annonce,
+              'userData': userData,
+            },
+          );
+        }
+      },
+      child: Card(
+        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                annonce['ville_depart'] ?? 'Ville inconnue',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Text('Départ: ${annonce['ville_depart']}'),
+              Text('Arrivée: ${annonce['ville_arrivee']}'),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.date_range, color: Colors.grey),
+                  SizedBox(width: 8),
+                  Text(
+                    annonce['date_depart'] is Timestamp
+                        ? DateFormat('dd/MM/yyyy').format(
+                        (annonce['date_depart'] as Timestamp).toDate())
+                        : 'Date inconnue',
+                    style: TextStyle(color: Colors.black54),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // Widget to display User layout with username and full name (prenom nom)
   Widget _buildUserTile(Map<String, dynamic> user) {
     return ListTile(
       leading: CircleAvatar(
@@ -182,7 +220,19 @@ class _SearchPageState extends State<SearchPage> {
       title: Text(user['username'] ?? 'Nom d’utilisateur inconnu'),
       subtitle: Text('${user['prenom'] ?? ''} ${user['nom'] ?? ''}'),
       onTap: () {
-        // Navigate to user's profile
+        String transporteurId = user['id'] ?? ''; // Use the document ID
+        if (transporteurId.isNotEmpty) {
+          Navigator.pushNamed(
+            context,
+            '/detailsProfile',
+            arguments: transporteurId, // Pass the document ID to the profile page
+          );
+        } else {
+          // Handle the case where transporteurId is not available
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Identifiant du transporteur introuvable')),
+          );
+        }
       },
     );
   }

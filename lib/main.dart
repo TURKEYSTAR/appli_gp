@@ -20,6 +20,7 @@ import 'pages/inscription.dart';
 import 'pages/reinitialisation.dart';
 import 'pages/inscription1.dart';
 import 'pages/tracking_page.dart';
+import 'pages/details_profile_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,6 +73,7 @@ class MyApp extends StatelessWidget {
         '/reservation3': (context) => ReservationScreen3(),
         '/detailsAnnonce': (context) => DetailAnnoncePage(),
         '/tracking': (context) => TrackingPage(),
+        '/detailsProfile': (context) => DetailsProfilePage(transporteurId: 'some_id'),
       },
     );
   }

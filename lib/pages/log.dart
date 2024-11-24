@@ -4,8 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:appli_gp/pages/inscription.dart';
 import 'package:appli_gp/pages/reinitialisation.dart';
-import 'package:appli_gp/firebase_services/firebase_auth_services.dart';
-import '../firebase_services/notifications_service.dart';
+import '../firebase_services/firebase_auth_services.dart';
 
 class LoginScreen2 extends StatefulWidget {
   const LoginScreen2({Key? key}) : super(key: key);
@@ -20,19 +19,7 @@ class _LoginScreenState2 extends State<LoginScreen2> {
   TextEditingController passwordController = TextEditingController();
   final FirebaseAuthServices _authServices = FirebaseAuthServices();
   bool _isLoading = false;
-  final PushNotificationService _notificationService = PushNotificationService();
 
-  @override
-  void initState() {
-    super.initState();
-    _checkUserAuth();
-    _initNotifications();
-  }
-
-
-  Future<void> _initNotifications() async {
-    await _notificationService.saveFCMToken();
-  }
   Future<void> _checkUserAuth() async {
     User? currentUser = FirebaseAuth.instance.currentUser;
 
@@ -43,73 +30,118 @@ class _LoginScreenState2 extends State<LoginScreen2> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _checkUserAuth();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 250),
-            Icon(
-              Icons.lock_open_outlined,
-              size: 120,
-              color: Colors.black,
-            ),
-            const SizedBox(height: 20),
-            Text(
-              "GPExpress",
-              style: GoogleFonts.roboto(
-                textStyle: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  fontStyle: FontStyle.italic,
-                  color: Colors.black,
+            // Top Background with Lock Icon
+            Container(
+              height: 500,
+              width: double.infinity, // Ensures the container takes the full width
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/top_background1.png'),
+                  fit: BoxFit.cover,
                 ),
               ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 350),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 40),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.lock_open_outlined,
+                            size: 100,
+                            color: Color(0xFF6672FF),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            "GPExpress",
+                            style: GoogleFonts.roboto(
+                              textStyle: const TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF6672FF),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 20),
+
+            const SizedBox(height: 30),
+            // Login Form
             Form(
               key: _formKey,
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 75, vertical: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: Column(
                   children: [
+                    // Email Input with Custom Icon
                     TextFormField(
                       controller: emailController,
                       decoration: InputDecoration(
-                        hintText: "Email or Phone",
-                        prefixIcon: const Icon(Icons.email),
+                        hintText: "Email ou Téléphone",
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Image.asset(
+                            'assets/images/email.png',
+                            height: 20,
+                            width: 20,
+                          ),
+                        ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your email or phone';
+                          return 'Veuillez entrer votre email ou téléphone';
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 20),
+                    // Password Input with Custom Icon
                     TextFormField(
                       controller: passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
-                        hintText: "Password",
-                        prefixIcon: const Icon(Icons.lock),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                        hintText: "Mot de passe",
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Image.asset(
+                            'assets/images/password.png',
+                            height: 20,
+                            width: 20,
+                          ),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 15,
-                          horizontal: 20,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
+                          return 'Veuillez entrer votre mot de passe';
                         }
                         return null;
                       },
@@ -118,96 +150,98 @@ class _LoginScreenState2 extends State<LoginScreen2> {
                 ),
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
+            // Login Button
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GestureDetector(
+                  onTap: _isLoading
+                      ? null
+                      : () async {
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              _isLoading = true;
+                            });
+
+                            var user =
+                                await _authServices.signInWithEmailAndPassword(
+                              emailController.text,
+                              passwordController.text,
+                            );
+
+                            setState(() {
+                              _isLoading = false;
+                            });
+
+                            if (user != null) {
+                              Navigator.pushReplacementNamed(context, '/home');
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      "Login échoué ! Vérifiez vos informations."),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 30),
+                    // Add spacing to the right
+                    child: Image.asset(
+                      'assets/images/btn_arraw1.png',
+                      height: 70,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
             Align(
               alignment: Alignment.center,
-              child: TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                      const ReinitialisationScreen(),
-                    ),
-                  );
-                },
-                child: const Text("Mot de passe oublié?"),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _isLoading
-                  ? null
-                  : () async {
-                if (_formKey.currentState!.validate()) {
-                  setState(() {
-                    _isLoading = true;
-                  });
-
-                  var user = await _authServices
-                      .signInWithEmailAndPassword(
-                    emailController.text,
-                    passwordController.text,
-                  );
-
-                  setState(() {
-                    _isLoading = false;
-                  });
-
-                  if (user != null) {
-                    Navigator.pushReplacementNamed(
-                        context, '/home');
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                            "Login failed! Please check your credentials."),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ReinitialisationScreen(),
                       ),
                     );
-                  }
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 135, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                backgroundColor: Colors.black,
-              ),
-              child: const Text(
-                "Se connecter",
-                style: TextStyle(
-                  color: Colors.white,
+                  },
+                  child: const Text(
+                    "Mot de passe oublié?",
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            Container(
-              margin: const EdgeInsets.fromLTRB(10, 20, 10, 20),
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    const TextSpan(text: "Pas de compte? "),
-                    TextSpan(
-                      text: "S'inscrire",
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                              const InscriptionScreen(),
-                            ),
-                          );
-                        },
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
+            const SizedBox(height: 10),
+            // Sign-up Redirect
+            Text.rich(
+              TextSpan(
+                children: [
+                  const TextSpan(text: "Pas de compte? "),
+                  TextSpan(
+                    text: "S'inscrire",
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const InscriptionScreen(),
+                          ),
+                        );
+                      },
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],

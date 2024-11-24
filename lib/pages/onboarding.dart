@@ -12,17 +12,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   List<Map<String, String>> onboardingData = [
     {
-      "animation": "assets/lottie/lotcarte.json",
+      "animation": "assets/lottie/delivery3.json",
       "title": "Livraison Rapide",
       "description": "Faites livrer vos colis dans les plus brefs délais par nos transporteurs de confiance."
     },
     {
-      "animation": "assets/lottie/lot2.json",
+      "animation": "assets/lottie/track1.json",
       "title": "Suivi en Temps Réel",
       "description": "Suivez vos colis en direct et en temps réel sur votre application."
     },
     {
-      "animation": "assets/lottie/lot1.json",
+      "animation": "assets/lottie/paymentpurple.json",
       "title": "Paiements Sécurisés",
       "description": "Payez en toute sécurité via nos plateformes de confiance."
     },
@@ -31,10 +31,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.purple[50],
       body: Stack(
         children: [
           Column(
             children: [
+              SizedBox(height: 60),
               Expanded(
                 child: PageView.builder(
                   controller: _pageController,
@@ -95,7 +97,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       width: _currentPage == index ? 12 : 12,
       margin: EdgeInsets.only(right: 5),
       decoration: BoxDecoration(
-        color: _currentPage == index ? Colors.blue : Colors.grey,
+        color: _currentPage == index ? Colors.deepPurple : Colors.grey,
         borderRadius: BorderRadius.circular(5),
       ),
     );
@@ -120,24 +122,29 @@ class OnboardingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(13.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Lottie.asset(animationPath, height: 300, width: 400),
+          Lottie.asset(animationPath, height: 400, width: 500),
           SizedBox(height: 25),
           Text(
             title,
-            style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 34,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF6672FF), // Updated color
+            ),
             textAlign: TextAlign.center,
           ),
+
           SizedBox(height: 20),
           Text(
             description,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w400,
-              color: Colors.grey,
+              color: Colors.black,
             ),
             textAlign: TextAlign.center,
           ),
@@ -145,8 +152,8 @@ class OnboardingPage extends StatelessWidget {
           ElevatedButton(
             onPressed: onNextPressed,
             style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-              backgroundColor: Colors.blueGrey,
+              padding: EdgeInsets.symmetric(horizontal: 45, vertical: 15),
+              backgroundColor: Color(0xFF6672FF),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),

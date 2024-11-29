@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class DetailsProfilePage extends StatefulWidget {
-  final String transporteurId; // Accept transporteur ID (document ID)
+  final String transporteurId;
 
   DetailsProfilePage({required this.transporteurId});
 
@@ -13,8 +13,9 @@ class DetailsProfilePage extends StatefulWidget {
 class _DetailsProfilePageState extends State<DetailsProfilePage> {
   String? displayName;
   String? role;
-  String? email;  // Add any other data you want to fetch
+  String? email;
   String? phoneNumber;
+  String? address;
 
   @override
   void initState() {
@@ -36,6 +37,7 @@ class _DetailsProfilePageState extends State<DetailsProfilePage> {
           role = transporteurDoc.data()?['role'];
           email = transporteurDoc.data()?['email'];
           phoneNumber = transporteurDoc.data()?['phone'];
+          address = transporteurDoc.data()?['address']; // Example field
         });
       } else {
         setState(() {
@@ -52,10 +54,8 @@ class _DetailsProfilePageState extends State<DetailsProfilePage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    // Show loading indicator until data is fetched
     if (displayName == null || role == null) {
       return Scaffold(
         appBar: AppBar(
@@ -67,46 +67,133 @@ class _DetailsProfilePageState extends State<DetailsProfilePage> {
       );
     }
 
+    final userDetails = {
+      if (email != null) "Email": email!,
+      if (phoneNumber != null) "Mobile": phoneNumber!,
+      if (address != null) "Adresse": address!,
+    };
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Profil de $displayName'),
+      body: Stack(
+        children: [
+          // Top Background Image
+          Container(
+            height: 200,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/top_background.png'),
+                fit: BoxFit.fill,
+              ),
+            ),
+          ),
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: 150), // Space for the background image
+                Center(
+                  child: CircleAvatar(
+                    radius: 50,
+                    backgroundImage: AssetImage('assets/images/avata.png'),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  displayName ?? 'Utilisateur',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  role ?? '',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+                SizedBox(height: 20),
+
+                // Collapsible Information Section
+                _buildSectionWithDetails(
+                  title: "Informations personnelles",
+                  icon: Icons.person,
+                  details: userDetails,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
-      body: Center(
+    );
+  }
+
+  Widget _buildSectionWithDetails({
+    required String title,
+    required IconData icon,
+    required Map<String, String> details,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 4,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 60,
-                backgroundImage: AssetImage('assets/images/avata.png'), // Placeholder image
+              Row(
+                children: [
+                  Icon(icon, size: 40, color: Colors.deepPurple.shade200),
+                  SizedBox(width: 10),
+                  Text(
+                    title,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
-              SizedBox(height: 20),
-              Text(
-                displayName!,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Rôle: $role',
-                style: TextStyle(fontSize: 18, color: Colors.grey),
-              ),
-              SizedBox(height: 10),
-              if (email != null)
-                Text(
-                  'Email: $email',
-                  style: TextStyle(fontSize: 18),
-                ),
-              if (phoneNumber != null)
-                Text(
-                  'Téléphone: $phoneNumber',
-                  style: TextStyle(fontSize: 18),
-                ),
+              SizedBox(height: 16),
+              ...details.entries.map((entry) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _getIconForDetail(entry.key),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              entry.key,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              entry.value,
+                              style: TextStyle(fontSize: 14, color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Icon _getIconForDetail(String detailType) {
+    switch (detailType) {
+      case "Adresse":
+        return Icon(Icons.home, color: Colors.blue);
+      case "Mobile":
+        return Icon(Icons.phone, color: Colors.blue.shade800);
+      case "Email":
+        return Icon(Icons.email, color: Colors.indigo);
+      default:
+        return Icon(Icons.info, color: Colors.grey);
+    }
   }
 }

@@ -6,7 +6,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:appli_gp/pages/log.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:input_quantity/input_quantity.dart';
-import '../firebase_services/notifications_service.dart';
 import '../widgets/custom_text_field1.dart';
 
 class ReservationScreen3 extends StatefulWidget {
@@ -31,8 +30,7 @@ class _ReservationScreenState extends State<ReservationScreen3> {
 
   String? selectedPackageType;
   String? selectedFragility;
-  bool isNonEmpilable = false; // Initialise comme booléen
-  bool isFragile = false;
+  bool isNonEmpilable = false;
   double quantity = 1;
   Country? _selectedCountry; // Store the selected country here
 
@@ -42,7 +40,6 @@ class _ReservationScreenState extends State<ReservationScreen3> {
 
     final annonceData = args?['annonce'];
     final previousData1 = args?['previousData1'] as Map<String, dynamic>?;
-    final transporteurId = annonceData?['user_id'];
     String packageWeight = weightController.text;
 
     Future<String?> getSenderName() async {
@@ -397,37 +394,15 @@ class _ReservationScreenState extends State<ReservationScreen3> {
                       SizedBox(height: 10),
                       Row(
                         children: [
-                          // Longueur
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Checkbox(
-                                  value: isNonEmpilable,
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      isNonEmpilable = value ?? false;
-                                    });
-                                  },
-                                ),
-                                const Text("Non empilable"),
-                              ],
-                            ),
+                          Checkbox(
+                            value: isNonEmpilable,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                isNonEmpilable = value ?? false;
+                              });
+                            },
                           ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Checkbox(
-                                  value: isFragile,
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      isFragile = value ?? false;
-                                    });
-                                  },
-                                ),
-                                const Text("Fragile"),
-                              ],
-                            ),
-                          ),
+                          const Text("Non empilable"),
                         ],
                       ),
                     ],
@@ -455,17 +430,7 @@ class _ReservationScreenState extends State<ReservationScreen3> {
                     if (_formKey.currentState!.validate()) {
                       _saveReservation(); // Save the annonce to Firestore
                     }
-                    final String? senderName = await getSenderName();
-                    if (senderName != null) {
-                      await PushNotificationService.notifyAnnouncementCreator(
-                        context,
-                        transporteurId,
-                        senderName,
-                        packageWeight,
-                      );
-                    } else {
-                      print("Nom d'utilisateur introuvable");
-                    }
+
                     // Call _sendNotificationToCreator when reservation is confirmed
 
 
@@ -499,6 +464,7 @@ class _ReservationScreenState extends State<ReservationScreen3> {
     );
 
   }
+
   Future<void> _saveReservation() async {
     final User? user = FirebaseAuth.instance.currentUser; // Récupère l'utilisateur actuel
     if (user == null) {
@@ -510,31 +476,50 @@ class _ReservationScreenState extends State<ReservationScreen3> {
 
     final String userId = user.uid; // Récupère l'ID de l'utilisateur
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final annonceId = args?['annonceId'] as String?;
     final previousData1 = args?['previousData1'] as Map<String, dynamic>?;
     final previousData2 = args?['previousData2'] as Map<String, dynamic>?;
+    final annonceData = args?['annonce'] as Map<String, dynamic>?;
 
-    if (previousData1 != null && previousData2 !=null) {
+    if (previousData1 != null && previousData2 != null && annonceData != null) {
       Map<String, dynamic> reservationData = {
         ...previousData1,
         ...previousData2,
         'expediteur_id': userId,
-        'poids_colis': weightController.text, // Ajoute l'ID de l'utilisateur
+        'poids_colis': weightController.text,
         'type_colis': selectedPackageType,
         'longueur_colis': lengthController.text,
         'largeur_colis': widthController.text,
         'hauteur_colis': heightController.text,
-        'fragilite': '${isNonEmpilable ? 'non empilable' : ''} ${isFragile ? 'fragile' : ''}'.trim(),
+        'fragilite': '${isNonEmpilable ? 'non empilable' : ''} '.trim(),
         'quantite': quantity,
+        'statut': 'en attente',
+        'date_cs': null,
+        'dateCreation': Timestamp.now(),
+        'transporteur_id': annonceData['user_id'],
+        'annonce_id': annonceId,
       };
 
-      // Enregistre les données dans Firestore
-      await FirebaseFirestore.instance.collection('reservations').add(reservationData);
+      // Enregistre la réservation et récupère son ID
+      DocumentReference reservationRef = await FirebaseFirestore.instance
+          .collection('reservations')
+          .add(reservationData);
+      String reservationId = reservationRef.id;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Reservation envoyée avec succès"), backgroundColor: Colors.green,),
+      // Enregistre la notification avec reservationId
+      await _enregistrerNotificationReservation(
+        annonceId: annonceId!,
+        reservationId: reservationId, // Ajout de l'ID de la réservation
+        expediteurId: userId,
+        transporteurId: annonceData['user_id'],
+        typeNotification: 'reservation',
       );
 
-      // Navigate to the Profile page after successful submission
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Réservation envoyée avec succès"), backgroundColor: Colors.green),
+      );
+
+      // Redirection après succès
       Navigator.pushReplacementNamed(context, '/home', arguments: 1);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -543,18 +528,43 @@ class _ReservationScreenState extends State<ReservationScreen3> {
     }
   }
 
-}
-Widget _buildStepIcon(IconData icon, Color color) {
-  return Container(
-    padding: const EdgeInsets.all(10),
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      color: Colors.white,
-      border: Border.all(color: color, width: 2),
-    ),
-    child: Icon(
-      icon,
-      color: color,
-    ),
-  );
+  Future<void> _enregistrerNotificationReservation({
+    required String annonceId,
+    required String reservationId,
+    required String expediteurId,
+    required String transporteurId,
+    required String typeNotification,
+  }) async {
+    try {
+      // Ajout de la notification pour le transporteur
+      await FirebaseFirestore.instance.collection('notifications').add({
+        'type': typeNotification,
+        'transporteur_id': transporteurId,
+        'expediteur_id': expediteurId,
+        'annonce_id': annonceId,
+        'reservation_id': reservationId,
+        'date_notification': Timestamp.now(),
+      });
+
+      print("Notification envoyée au transporteur.");
+    } catch (e) {
+      print("Erreur : $e");
+      throw Exception("Impossible d'envoyer la notification.");
+    }
+  }
+
+  Widget _buildStepIcon(IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white,
+        border: Border.all(color: color, width: 2),
+      ),
+      child: Icon(
+        icon,
+        color: color,
+      ),
+    );
+  }
 }

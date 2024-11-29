@@ -12,7 +12,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   List<Map<String, String>> onboardingData = [
     {
-      "animation": "assets/lottie/delivery3.json",
+      "animation": "assets/lottie/truck.json",
       "title": "Livraison Rapide",
       "description": "Faites livrer vos colis dans les plus brefs délais par nos transporteurs de confiance."
     },

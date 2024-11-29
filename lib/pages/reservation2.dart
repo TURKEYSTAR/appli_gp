@@ -41,6 +41,7 @@ class _ReservationScreenState extends State<ReservationScreen2> {
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final annonceData = args?['annonce'];
+    final annonceId = args?['annonceId'] as String?;
     final previousData1 = args?['previousData1'] as Map<String, dynamic>?;
 
     return Scaffold(
@@ -302,6 +303,7 @@ class _ReservationScreenState extends State<ReservationScreen2> {
                     // Combine previous and new data
                     final combinedData = {
                       'annonce': annonceData,
+                      'annonceId':annonceId,
                       'previousData1': previousData1,
                       'previousData2': previousData2,
                     };

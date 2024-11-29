@@ -71,8 +71,8 @@ flutter:
     - assets/lottie/paymentpurple.json
     - assets/lottie/delivery.json
     - assets/lottie/delivery1.json
-    - assets/lottie/delivery2.json
-    - assets/lottie/delivery3.json
+    - assets/lottie/truck.json
+    - assets/lottie/truck2.json
     - assets/lottie/track1.json
     - assets/lottie/track2.json
     - assets/lottie/lotcarte.json
@@ -87,6 +87,8 @@ flutter:
     - assets/images/password.png
     - assets/images/name.png
     - assets/images/notification.png
+    - assets/images/video_call.png
+    - assets/images/voice_call.png
     - assets/images/logo.png
     - assets/images/communaute.png
     - assets/images/carte-didentite.png

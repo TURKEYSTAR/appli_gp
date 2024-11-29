@@ -7,6 +7,8 @@ import 'package:flag/flag.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:intl/intl.dart';
 
+import '../main.dart';
+
 class DetailAnnoncePage extends StatefulWidget {
   @override
   _DetailAnnoncePageState createState() => _DetailAnnoncePageState();
@@ -30,7 +32,7 @@ class _DetailAnnoncePageState extends State<DetailAnnoncePage> {
       case 'voiture':
         return Icons.directions_car;
       default:
-        return Icons.help_outline;
+        return Icons.help_outline; // Default icon if mode not recognized
     }
   }
 
@@ -39,6 +41,8 @@ class _DetailAnnoncePageState extends State<DetailAnnoncePage> {
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final annonceData = args?['annonce'] as Map<String, dynamic>?;
     final userData = args?['userData'] as Map<String, dynamic>?;
+    final annonceId = args?['annonceId'] as String?;
+
     final countryCode = annonceData != null ? getCountryCodeFromName(annonceData['pays_depart']) : null;
     final countryCode2 = annonceData != null ? getCountryCodeFromName(annonceData['pays_arrivee']) : null;
 
@@ -79,7 +83,7 @@ class _DetailAnnoncePageState extends State<DetailAnnoncePage> {
               const SizedBox(height: 20),
               _buildDetailsSection(annonceData),
               const SizedBox(height: 15),
-              _buildReservationButton(annonceData, userData),
+              _buildReservationButton(annonceData, userData, annonceId),
             ],
           ),
         ),
@@ -188,9 +192,7 @@ class _DetailAnnoncePageState extends State<DetailAnnoncePage> {
         const SizedBox(height: 5),
         _buildDetailBox("Prix/kg ${annonceData?['prix_kg'] ?? 'N/A'}"),
         const SizedBox(height: 5),
-        _buildDetailBox("Numéro de départ ${annonceData?['num_depart'] ?? 'N/A'}"),
-        const SizedBox(height: 5),
-        _buildDetailBox("Numéro d'arrivée ${annonceData?['num_arrivee'] ?? 'N/A'}"),
+        _buildDetailBox("Telephone ${annonceData?['num_depart'] ?? 'N/A'} / ${annonceData?['num_arrivee'] ?? 'N/A'} "),
       ],
     );
   }
@@ -211,14 +213,14 @@ class _DetailAnnoncePageState extends State<DetailAnnoncePage> {
     );
   }
 
-  Widget _buildReservationButton(Map<String, dynamic>? annonceData,Map<String, dynamic>? userData) {
+  Widget _buildReservationButton(Map<String, dynamic>? annonceData,Map<String, dynamic>? userData, String? annonceId) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.13),
 
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-          padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 30),
+          padding: const EdgeInsets.symmetric(vertical: 15),
           backgroundColor: Colors.black,
         ),
 
@@ -228,6 +230,7 @@ class _DetailAnnoncePageState extends State<DetailAnnoncePage> {
             '/reservation',
             arguments: {
               'annonce': annonceData,
+              'annonceId': annonceId,
               // Ajoutez d'autres informations de réservation au besoin
             },
           );

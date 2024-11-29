@@ -21,6 +21,7 @@ import 'pages/reinitialisation.dart';
 import 'pages/inscription1.dart';
 import 'pages/tracking_page.dart';
 import 'pages/details_profile_page.dart';
+import 'pages/detail_notif1.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -74,6 +75,7 @@ class MyApp extends StatelessWidget {
         '/detailsAnnonce': (context) => DetailAnnoncePage(),
         '/tracking': (context) => TrackingPage(),
         '/detailsProfile': (context) => DetailsProfilePage(transporteurId: 'some_id'),
+        '/detailNotif1': (context) => DetailNotif1Page(),
       },
     );
   }
@@ -139,34 +141,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(52.0),
-        child: AppBar(
-          backgroundColor: Colors.blueGrey,
-          elevation: 1,
-          leading: IconButton(
-            icon: Icon(Icons.local_shipping, color: Colors.black54),
-            onPressed: () {
-              // Add action for the truck icon here
-            },
-          ),
-          title: Text(
-            'GP Express',
-            style: TextStyle(
-              color: Colors.black,
-            ),
-          ),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: Icon(Icons.notifications, color: Colors.black54),
-              onPressed: () {
-                Navigator.pushNamed(context, '/notifications');
-              },
-            ),
-          ],
-        ),
-      ),
+      backgroundColor: Colors.deepPurple[50],
       body: Container(
 
         child: _pages[_selectedIndex],
@@ -175,25 +150,25 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.grey[100],
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home, size: 30, color: Colors.blueGrey),
+            icon: Icon(Icons.home, size: 30, color : Colors.blue),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.map, size: 30, color: Colors.blueGrey),
+            icon: Icon(Icons.map, size: 30, color : Colors.blue),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person, size: 30, color: Colors.blueGrey),
+            icon: Icon(Icons.person, size: 30, color : Colors.blue),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings, size: 30, color: Colors.blueGrey),
+            icon: Icon(Icons.settings, size: 30, color : Colors.blue),
             label: '',
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blueGrey,
-        unselectedItemColor: Colors.black45,
+        selectedItemColor: Colors.deepPurple,
+        unselectedItemColor: Colors.blue,
         onTap: _onItemTapped,
       ),
     );

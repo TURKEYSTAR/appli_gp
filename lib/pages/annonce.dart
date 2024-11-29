@@ -36,11 +36,10 @@ class _AnnonceScreenState extends State<AnnonceScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.push(
+            Navigator.pushNamed(
               context,
-              MaterialPageRoute(
-                builder: (context) => const LoginScreen2(), // Retourne à l'écran précédent
-              ),
+              '/home',
+              arguments: 2,
             );
           },
         ),

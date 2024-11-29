@@ -36,10 +36,7 @@ class _ReinitialisationScreenState extends State<ReinitialisationScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const LoginScreen2()),
-                  (Route<dynamic> route) => false,
-            );
+            Navigator.pop(context);
           },
         ),
       ),

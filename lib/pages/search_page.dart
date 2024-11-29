@@ -23,27 +23,35 @@ class _SearchPageState extends State<SearchPage> {
         .collection('annonces')
         .snapshots()
         .map((snapshot) => snapshot.docs
-        .where((doc) {
-      final villeDepart =
-          doc['ville_depart']?.toString().toLowerCase() ?? '';
-      final villeArrivee =
-          doc['ville_arrivee']?.toString().toLowerCase() ?? '';
-      return villeDepart.contains(lowerCaseQuery) ||
-          villeArrivee.contains(lowerCaseQuery);
-    })
-        .map((doc) => {...doc.data(), 'type': 'annonce', 'id': doc.id}) // Add the document ID
-        .toList());
+            .where((doc) {
+              final villeDepart =
+                  doc['ville_depart']?.toString().toLowerCase() ?? '';
+              final villeArrivee =
+                  doc['ville_arrivee']?.toString().toLowerCase() ?? '';
+              return villeDepart.contains(lowerCaseQuery) ||
+                  villeArrivee.contains(lowerCaseQuery);
+            })
+            .map((doc) => {
+                  ...doc.data(),
+                  'type': 'annonce',
+                  'id': doc.id
+                }) // Add the document ID
+            .toList());
 
     Stream<List<Map<String, dynamic>>> usersStream = FirebaseFirestore.instance
         .collection('users')
         .snapshots()
         .map((snapshot) => snapshot.docs
-        .where((doc) {
-      final username = doc['username']?.toString().toLowerCase() ?? '';
-      return username.contains(lowerCaseQuery);
-    })
-        .map((doc) => {...doc.data(), 'type': 'user', 'id': doc.id}) // Add the document ID
-        .toList());
+            .where((doc) {
+              final username = doc['username']?.toString().toLowerCase() ?? '';
+              return username.contains(lowerCaseQuery);
+            })
+            .map((doc) => {
+                  ...doc.data(),
+                  'type': 'user',
+                  'id': doc.id
+                }) // Add the document ID
+            .toList());
 
     // Handle filter-specific logic
     if (filter == 'Annonces') {
@@ -135,7 +143,7 @@ class _SearchPageState extends State<SearchPage> {
         style: TextStyle(
           color: selectedFilter == label ? Colors.blue : Colors.black,
           fontWeight:
-          selectedFilter == label ? FontWeight.bold : FontWeight.normal,
+              selectedFilter == label ? FontWeight.bold : FontWeight.normal,
         ),
       ),
     );
@@ -150,7 +158,8 @@ class _SearchPageState extends State<SearchPage> {
                 content: Text('Veuillez vous connecter pour plus de détails')),
           );
         } else {
-          String transporteurId = annonce['user_id'] ?? ''; // Replace with the document ID of the user
+          String transporteurId = annonce['user_id'] ??
+              ''; // Replace with the document ID of the user
           Map<String, dynamic>? userData;
 
           if (transporteurId.isNotEmpty) {
@@ -195,7 +204,7 @@ class _SearchPageState extends State<SearchPage> {
                   Text(
                     annonce['date_depart'] is Timestamp
                         ? DateFormat('dd/MM/yyyy').format(
-                        (annonce['date_depart'] as Timestamp).toDate())
+                            (annonce['date_depart'] as Timestamp).toDate())
                         : 'Date inconnue',
                     style: TextStyle(color: Colors.black54),
                   ),
@@ -220,15 +229,14 @@ class _SearchPageState extends State<SearchPage> {
       title: Text(user['username'] ?? 'Nom d’utilisateur inconnu'),
       subtitle: Text('${user['prenom'] ?? ''} ${user['nom'] ?? ''}'),
       onTap: () {
-        String transporteurId = user['id'] ?? ''; // Use the document ID
+        String transporteurId = user['id'] ?? ''; // Ensure 'id' is present
         if (transporteurId.isNotEmpty) {
           Navigator.pushNamed(
             context,
             '/detailsProfile',
-            arguments: transporteurId, // Pass the document ID to the profile page
+            arguments: transporteurId, // Pass correct ID
           );
         } else {
-          // Handle the case where transporteurId is not available
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Identifiant du transporteur introuvable')),
           );

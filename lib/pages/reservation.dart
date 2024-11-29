@@ -35,6 +35,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final annonceData = args?['annonce'] as Map<String, dynamic>?;
+    final annonceId = args?['annonceId'] as String?;
 
     return Scaffold(
       appBar: AppBar(
@@ -287,6 +288,7 @@ class _ReservationScreenState extends State<ReservationScreen> {
                       '/reservation2',
                       arguments: {
                         'annonce': annonceData,
+                        'annonceId': annonceId,
                         'previousData1': {
                           'prenom_expediteur': prenomController.text,
                           'nom_expediteur': nomController.text,

@@ -18,6 +18,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _emailController = TextEditingController();
   final _adresseController = TextEditingController();
 
+  String? selectedValue;
+
   @override
   void initState() {
     super.initState();
@@ -38,7 +40,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
             _usernameController.text = data['username'] ?? '';
             _phoneController.text = data['phone'] ?? '';
             _emailController.text = data['email'] ?? '';
-            _adresseController.text = data['adresse'] ?? '';
+            _adresseController.text = data['address'] ?? '';
+            selectedValue = data['role'];
           });
         }
       }
@@ -58,6 +61,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           'phone': _phoneController.text,
           'email': _emailController.text,
           'adresse': _adresseController.text,
+          'role': selectedValue,
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Profil mis à jour avec succès!')),
@@ -108,77 +112,89 @@ class _EditProfilePageState extends State<EditProfilePage> {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundImage:
-                  AssetImage('assets/images/profile_pic.png'),
-                ),
+              CircleAvatar(
+                radius: 50,
+                backgroundImage: AssetImage('assets/images/profile_pic.png'),
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               _buildTextField(
-                  controller: _prenomController, label: 'Prénom', icon: Icons.person),
-              SizedBox(height: 20),
+                controller: _prenomController,
+                hintText: 'Prénom',
+                iconPath: 'assets/images/name.png',
+              ),
+              const SizedBox(height: 20),
               _buildTextField(
-                  controller: _nomController, label: 'Nom', icon: Icons.person_outline),
-              SizedBox(height: 20),
+                controller: _nomController,
+                hintText: 'Nom',
+                iconPath: 'assets/images/name.png',
+              ),
+              const SizedBox(height: 20),
               _buildTextField(
-                  controller: _usernameController, label: 'Nom d\'utilisateur', icon: Icons.account_circle),
-              SizedBox(height: 20),
+                controller: _usernameController,
+                hintText: "Nom d'utilisateur",
+                iconPath: 'assets/images/name.png',
+              ),
+              const SizedBox(height: 20),
               _buildTextField(
-                  controller: _phoneController, label: 'Numéro de téléphone', icon: Icons.phone),
-              SizedBox(height: 20),
+                controller: _phoneController,
+                hintText: 'Numéro de téléphone',
+                iconPath: 'assets/images/appel.png',
+              ),
+              const SizedBox(height: 20),
               _buildTextField(
-                  controller: _emailController, label: 'E-Mail', icon: Icons.email),
-              SizedBox(height: 20),
+                controller: _emailController,
+                hintText: 'E-Mail',
+                iconPath: 'assets/images/email.png',
+              ),
+              const SizedBox(height: 20),
               _buildTextField(
-                  controller: _adresseController, label: 'Adresse', icon: Icons.location_on),
-              SizedBox(height: 40),
-              Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _updateUserData,
-                      style: ElevatedButton.styleFrom(
-                        padding:
-                        EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                        backgroundColor: Colors.blueGrey,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(40),
-                        ),
-                      ),
-                      child: Text(
-                        'Enregistrer',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/settings',
-                          arguments: 3,
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding:
-                        EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                        backgroundColor: Colors.red,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(40),
-                        ),
-                      ),
-                      child: Text(
-                        'Annuler',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
+                controller: _adresseController,
+                hintText: 'Adresse',
+                iconPath: 'assets/images/home2.png',
+              ),
+              const SizedBox(height: 30),
+              // Buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: _updateUserData,
+                    style: ElevatedButton.styleFrom(
+                      padding:
+                      EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      backgroundColor: Colors.deepPurpleAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(40),
                       ),
                     ),
-                  ],
-                ),
+                    child: Text(
+                      'Enregistrer',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/settings',
+                        arguments: 3,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding:
+                      EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      backgroundColor: Colors.blueAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(40),
+                      ),
+                    ),
+                    child: Text(
+                      'Annuler',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -187,15 +203,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Widget _buildTextField(
-      {required TextEditingController controller,
-        required String label,
-        required IconData icon}) {
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    required String iconPath,
+  }) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
+        hintText: hintText,
+        prefixIcon: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset(iconPath, width: 20, height: 20),
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
         ),

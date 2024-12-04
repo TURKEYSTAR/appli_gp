@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../widgets/validation_reservation.dart';
+import 'detail_notif1.dart';
 import 'notification_card.dart';
 
 class NotificationPage extends StatelessWidget {
@@ -112,12 +114,52 @@ class NotificationPage extends StatelessWidget {
     }
   }
 
+  void navigateToDetailPage(BuildContext context, Map<String, dynamic> notificationData, Map<String, dynamic> annonceData, Map<String, dynamic> reservationData,
+      String username) {
+    String typeNotification = notificationData['type'];
+    String villeDepart =  annonceData['ville_depart'];
+    String villeArrivee = annonceData['ville_arrivee'];
+    String prix_kg = annonceData['prix_kg'];
+    int quantite = reservationData['quantite'];
+
+    Widget detailPage;
+
+    switch (typeNotification) {
+      case 'reservation':
+        detailPage = DetailReservationPage();
+        break;
+      case 'validation_reservation':
+        detailPage = DetailNotifValidationPage(villeDepart: villeDepart, villeArrivee: villeArrivee, prix_kg: prix_kg, quantite: quantite,);
+        break;
+      default:
+        detailPage = Scaffold(
+          appBar: AppBar(title: Text("Détail Notification")),
+          body: Center(child: Text("Type de notification inconnu.")),
+        );
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => detailPage,
+        settings: RouteSettings(
+          arguments: {
+            'notificationData': notificationData,
+            'annonceData': annonceData,
+            'data': reservationData,
+            'username': username,
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Notifications'),
-        backgroundColor: Colors.deepPurple.shade600,
+        backgroundColor: Colors.grey[300],
         iconTheme: IconThemeData(color: Colors.black45),
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
@@ -154,14 +196,16 @@ class NotificationPage extends StatelessWidget {
               return FutureBuilder<Map<String, dynamic>>(
                 future: _fetchNotificationDetails(notification),
                 builder: (context, detailsSnapshot) {
-                  if (detailsSnapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return CircularProgressIndicator();
+                  if (detailsSnapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
                   }
 
                   final details = detailsSnapshot.data;
                   if (details == null || details.isEmpty) {
-                    return Text("Détails non disponibles");
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text("Détails non disponibles"),
+                    );
                   }
 
                   final annonce = details['annonce'];
@@ -170,30 +214,24 @@ class NotificationPage extends StatelessWidget {
 
                   return GestureDetector(
                     onTap: () {
-                      if (annonce != null && data != null) {
-                        Navigator.pushNamed(
+                      if (annonce != null && data != null && username != null) {
+                        navigateToDetailPage(
                           context,
-                          '/detailNotif1',
-                          arguments: {
-                            'annonceData': annonce,
-                            'data': data,
-                            'username': username,
-                            'notificationData': notification,
-                          },
+                          notification,
+                          annonce,
+                          data,
+                          username,
                         );
                       } else {
-                        print(
-                            "Données insuffisantes pour afficher les détails de la notification.");
+                        print("Données insuffisantes pour afficher les détails de la notification.");
                       }
                     },
+
                     child: NotificationCard(
                       username: username ?? 'Nom inconnu',
-                      villeDepart:
-                      annonce?['ville_depart'] ?? 'Départ inconnu',
-                      villeArrivee:
-                      annonce?['ville_arrivee'] ?? 'Arrivée inconnue',
-                      dateReservation:
-                      (notification['date_notification'] as Timestamp).toDate(),
+                      villeDepart: annonce?['ville_depart'] ?? 'Départ inconnu',
+                      villeArrivee: annonce?['ville_arrivee'] ?? 'Arrivée inconnue',
+                      dateReservation: (notification['date_notification'] as Timestamp).toDate(),
                       notifType: notification['type'],
                     ),
                   );
@@ -201,6 +239,7 @@ class NotificationPage extends StatelessWidget {
               );
             }).toList(),
           );
+
         },
       ),
     );

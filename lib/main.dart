@@ -22,6 +22,7 @@ import 'pages/inscription1.dart';
 import 'pages/tracking_page.dart';
 import 'pages/details_profile_page.dart';
 import 'pages/detail_notif1.dart';
+import 'pages/edit_profile_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -75,7 +76,8 @@ class MyApp extends StatelessWidget {
         '/detailsAnnonce': (context) => DetailAnnoncePage(),
         '/tracking': (context) => TrackingPage(),
         '/detailsProfile': (context) => DetailsProfilePage(transporteurId: 'some_id'),
-        '/detailNotif1': (context) => DetailNotif1Page(),
+        '/detailNotif1': (context) => DetailReservationPage(),
+        '/editProfile': (context) => EditProfilePage(),
       },
     );
   }
@@ -103,8 +105,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _checkUser();
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      // Check for arguments passed to this page
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       final args = ModalRoute.of(context)?.settings.arguments as int?;
       if (args != null) {
         setState(() {
@@ -117,7 +118,6 @@ class _HomePageState extends State<HomePage> {
   Future<void> _checkUser() async {
     currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
-      // Fetch additional user data from Firestore
       final userDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(currentUser!.uid)
@@ -142,27 +142,24 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.deepPurple[50],
-      body: Container(
-
-        child: _pages[_selectedIndex],
-      ),
+      body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.grey[100],
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home, size: 30, color : Colors.blue),
+            icon: Icon(Icons.home, size: 30, color: Colors.blue),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.map, size: 30, color : Colors.blue),
+            icon: Icon(Icons.map, size: 30, color: Colors.blue),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person, size: 30, color : Colors.blue),
+            icon: Icon(Icons.person, size: 30, color: Colors.blue),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings, size: 30, color : Colors.blue),
+            icon: Icon(Icons.settings, size: 30, color: Colors.blue),
             label: '',
           ),
         ],
@@ -174,4 +171,5 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
 

@@ -5,12 +5,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:country_picker/country_picker.dart';
 
 
-class DetailNotif1Page extends StatefulWidget {
+class DetailReservationPage extends StatefulWidget {
   @override
-  _DetailNotif1PageState createState() => _DetailNotif1PageState();
+  _DetailReservationPageState createState() => _DetailReservationPageState();
 }
 
-class _DetailNotif1PageState extends State<DetailNotif1Page> {
+class _DetailReservationPageState extends State<DetailReservationPage> {
 
   String? getCountryCodeFromName(String countryName) {
     final country = Country.tryParse(countryName);

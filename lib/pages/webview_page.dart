@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class PaiementPage extends StatefulWidget {
-  final String checkoutUrl; // URL obtained from initierPaiement
+class WebViewPage extends StatefulWidget {
+  final String paymentUrl;
 
-  const PaiementPage({required this.checkoutUrl, Key? key}) : super(key: key);
+  const WebViewPage({required this.paymentUrl, Key? key}) : super(key: key);
 
   @override
-  _PaiementPageState createState() => _PaiementPageState();
+  _WebViewPageState createState() => _WebViewPageState();
 }
 
-class _PaiementPageState extends State<PaiementPage> {
+class _WebViewPageState extends State<WebViewPage> {
   late final WebViewController _controller;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+
     // Initialiser le contrôleur WebView
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted) // Autoriser JavaScript
@@ -30,18 +31,13 @@ class _PaiementPageState extends State<PaiementPage> {
           },
         ),
       )
-      ..loadRequest(Uri.parse(widget.checkoutUrl)); // Charger l'URL du paiement
+      ..loadRequest(Uri.parse(widget.paymentUrl)); // Charger l'URL
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        centerTitle: true,
         title: const Text("Paiement"),
         backgroundColor: Colors.black54,
       ),

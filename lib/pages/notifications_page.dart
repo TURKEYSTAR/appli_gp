@@ -121,6 +121,7 @@ class NotificationPage extends StatelessWidget {
     String villeArrivee = annonceData['ville_arrivee'];
     String prix_kg = annonceData['prix_kg'];
     int quantite = reservationData['quantite'];
+    String poids_colis = reservationData['poids_colis'];
 
     Widget detailPage;
 
@@ -129,7 +130,7 @@ class NotificationPage extends StatelessWidget {
         detailPage = DetailReservationPage();
         break;
       case 'validation_reservation':
-        detailPage = DetailNotifValidationPage(villeDepart: villeDepart, villeArrivee: villeArrivee, prix_kg: prix_kg, quantite: quantite,);
+        detailPage = DetailNotifValidationPage(villeDepart: villeDepart, villeArrivee: villeArrivee, prix_kg: prix_kg, quantite: quantite, poids_colis: poids_colis,);
         break;
       default:
         detailPage = Scaffold(

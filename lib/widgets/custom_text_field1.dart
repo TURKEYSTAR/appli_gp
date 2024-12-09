@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 
-// ignore: must_be_immutable
+// CustomTextField1 widget
 class CustomTextField1 extends StatelessWidget {
   final TextEditingController? controller;
   final String? hintText;
   final TextInputType type;
   final FormFieldValidator<String>? validator;
-  bool? isObsecre = true;
-  bool? enabled = true;
+  final bool isObscure; // Changed to final for immutability
+  final bool isEnabled; // Changed to final for immutability
+  final Widget? prefixIcon; // Allows any widget as prefix
 
-  CustomTextField1({
+  const CustomTextField1({
     Key? key,
     this.controller,
     this.hintText,
-    this.isObsecre,
     required this.type,
-    this.enabled,
     this.validator,
+    this.isObscure = false, // Default value
+    this.isEnabled = true,  // Default value
+    this.prefixIcon,
   }) : super(key: key);
 
   @override
@@ -27,19 +29,13 @@ class CustomTextField1 extends StatelessWidget {
       margin: const EdgeInsets.all(5),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.4),
-            blurRadius: 5,
-            offset: const Offset(0, 5),
-          )
-        ],
       ),
       child: TextFormField(
-        enabled: enabled,
+        enabled: isEnabled,
         controller: controller,
-        obscureText: isObsecre!,
+        obscureText: isObscure,
         keyboardType: type,
+        validator: validator,
         cursorColor: Theme.of(context).primaryColor,
         decoration: InputDecoration(
           hintText: hintText,
@@ -47,28 +43,28 @@ class CustomTextField1 extends StatelessWidget {
           fillColor: Colors.white,
           filled: true,
           contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-
+          prefixIcon: prefixIcon, // Prefix icon properly handled
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.0),
             borderSide: const BorderSide(
-              color: Colors.black,
+              color: Colors.deepPurple,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide(
-              color: Colors.black,
+            borderSide: const BorderSide(
+              color: Colors.black38,
             ),
           ),
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30.0),
+            borderRadius: BorderRadius.circular(12.0),
             borderSide: const BorderSide(
               color: Colors.red,
               width: 2.0,
             ),
           ),
           focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30.0),
+            borderRadius: BorderRadius.circular(12.0),
             borderSide: const BorderSide(color: Colors.red, width: 2.0),
           ),
         ),

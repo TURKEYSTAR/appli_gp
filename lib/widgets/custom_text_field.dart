@@ -29,13 +29,6 @@ class CustomTextField extends StatelessWidget {
       margin: const EdgeInsets.all(5),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.4),
-            blurRadius: 5,
-            offset: const Offset(0, 5),
-          ),
-        ],
       ),
       child: TextFormField(
         enabled: enabled,
@@ -57,13 +50,13 @@ class CustomTextField extends StatelessWidget {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
             borderSide: const BorderSide(
-              color: Colors.black,
+              color: Colors.deepPurple,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
             borderSide: const BorderSide(
-              color: Colors.black,
+              color: Colors.black38,
             ),
           ),
           errorBorder: OutlineInputBorder(

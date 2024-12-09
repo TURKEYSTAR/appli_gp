@@ -60,12 +60,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
           'username': _usernameController.text,
           'phone': _phoneController.text,
           'email': _emailController.text,
-          'adresse': _adresseController.text,
+          'address': _adresseController.text,
           'role': selectedValue,
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Profil mis à jour avec succès!')),
         );
+        Navigator.pop(context, 3);
       }
     } catch (e) {
       print('Error updating user data: $e');
@@ -74,6 +75,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       );
     }
   }
+
 
   @override
   void dispose() {
@@ -90,7 +92,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blueGrey,
         elevation: 0,
         title: Text(
           'Modifier le profil',
@@ -100,11 +101,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pushNamed(
-              context,
-              '/settings',
-              arguments: 3,
-            );
+            Navigator.pop(context, 3); // 3 is the index for SettingsPage
+
           },
         ),
       ),
@@ -175,11 +173,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/settings',
-                        arguments: 3,
-                      );
+                      Navigator.pop(context, 3);
                     },
                     style: ElevatedButton.styleFrom(
                       padding:

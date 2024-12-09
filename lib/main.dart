@@ -60,7 +60,7 @@ class MyApp extends StatelessWidget {
         '/notifications': (context) => NotificationPage(),
         '/log': (context) => LoginScreen2(),
         '/inscription': (context) => InscriptionScreen(),
-        '/reinitialisation': (context) => ReinitialisationScreen(),
+        '/reinitialisation': (context) => ReinitialisationScreen(source: 'source',),
         '/inscription1': (context) => InscriptionScreen2(
           prenom: '',
           nom: '',

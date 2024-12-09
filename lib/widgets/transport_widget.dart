@@ -30,7 +30,7 @@ class TransportWidget extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? Colors.black : Colors.grey,
+            color: isSelected ? Colors.indigo : Colors.grey,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -38,14 +38,14 @@ class TransportWidget extends StatelessWidget {
           children: [
             Icon(
               data,
-              color: isSelected ? Colors.black : Colors.black,
+              color: isSelected ? Colors.indigo : Colors.black54,
               size: 30,
             ),
             SizedBox(height: 5),
             Text(
               label ?? '',
               style: TextStyle(
-                color: isSelected ? Colors.black : Colors.black,
+                color: isSelected ? Colors.indigo : Colors.black54,
                 fontSize: 14,
               ),
             ),

@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../widgets/header_widget.dart';
-import '../widgets/custom_text_field.dart';
-import 'log.dart';
-
 class ReinitialisationScreen extends StatefulWidget {
-  const ReinitialisationScreen({Key? key}) : super(key: key);
+  final dynamic source;
+
+  const ReinitialisationScreen({Key? key, required this.source}) : super(key: key);
 
   @override
   _ReinitialisationScreenState createState() => _ReinitialisationScreenState();
@@ -24,7 +22,7 @@ class _ReinitialisationScreenState extends State<ReinitialisationScreen> {
 
   Future<void> _getImage() async {
     imageXFile = await _picker.pickImage(source: ImageSource.gallery);
-    setState(() {}); // Updates the state to show the new image and color
+    setState(() {});
   }
 
   @override
@@ -32,11 +30,18 @@ class _ReinitialisationScreenState extends State<ReinitialisationScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text("Réinitialisation"),
+        title: const Text(
+          "Réinitialisation",
+          style: TextStyle(color: Colors.black),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pop(context);
+            if (widget.source == 'settings') {
+              Navigator.pop(context, 3);
+            } else if (widget.source == 'login') {
+              Navigator.pop(context);
+            }
           },
         ),
       ),
@@ -60,7 +65,7 @@ class _ReinitialisationScreenState extends State<ReinitialisationScreen> {
                             color: Colors.black.withOpacity(0.2),
                             blurRadius: 20,
                             offset: const Offset(0, 5),
-                          )
+                          ),
                         ],
                       ),
                       width: MediaQuery.of(context).size.width * 0.26,
@@ -99,57 +104,64 @@ class _ReinitialisationScreenState extends State<ReinitialisationScreen> {
               key: _formKey,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: CustomTextField(
-                  data: Icons.email,
+                child: _buildTextField(
                   controller: emailController,
                   hintText: "Email",
-                  type: TextInputType.emailAddress,
+                  iconPath: 'assets/images/email.png', // Update this path with your asset
                 ),
               ),
             ),
             const SizedBox(height: 30),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 75, vertical: 5),
-              child: Container(
-                decoration: BoxDecoration(
-                  boxShadow: const [
-                    BoxShadow(
-                        color: Colors.black26,
-                        offset: Offset(0, 4),
-                        blurRadius: 5.0)
-                  ],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ElevatedButton(
-                  style: ButtonStyle(
-                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                    ),
-                    minimumSize: WidgetStateProperty.all(const Size(50, 50)),
-                    backgroundColor: WidgetStateProperty.all(Colors.blueGrey),
-                    shadowColor: WidgetStateProperty.all(Colors.transparent),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(40, 10, 40, 10),
-                    child: Text(
-                      "Envoyer",
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+              padding: const EdgeInsets.symmetric(horizontal: 75, vertical: 5),
+              child: ElevatedButton(
+                style: ButtonStyle(
+                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
                     ),
                   ),
-                  onPressed: () {
-                    //signUpFormValidation();
-                  },
+                  minimumSize: WidgetStateProperty.all(const Size(50, 50)),
+                  backgroundColor: WidgetStateProperty.all(Colors.deepPurpleAccent),
+                  shadowColor: WidgetStateProperty.all(Colors.transparent),
                 ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(40, 10, 40, 10),
+                  child: const Text(
+                    "Envoyer",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                onPressed: () {
+                  // Validate and send the form
+                },
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    required String iconPath,
+  }) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: hintText,
+        prefixIcon: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Image.asset(iconPath, width: 20, height: 20),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30),
         ),
       ),
     );

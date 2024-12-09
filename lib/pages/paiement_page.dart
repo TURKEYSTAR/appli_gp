@@ -1,54 +1,66 @@
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
-class PaiementPage extends StatefulWidget {
-  final String checkoutUrl; // URL obtained from initierPaiement
+class PaymentPage extends StatefulWidget {
+  final String paymentUrl;
 
-  const PaiementPage({required this.checkoutUrl, Key? key}) : super(key: key);
+  const PaymentPage({Key? key, required this.paymentUrl}) : super(key: key);
 
   @override
-  _PaiementPageState createState() => _PaiementPageState();
+  _PaymentPageState createState() => _PaymentPageState();
 }
 
-class _PaiementPageState extends State<PaiementPage> {
-  late final WebViewController _controller;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    // Initialiser le contrôleur WebView
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted) // Autoriser JavaScript
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageStarted: (_) {
-            setState(() => _isLoading = true);
-          },
-          onPageFinished: (_) {
-            setState(() => _isLoading = false);
-          },
-        ),
-      )
-      ..loadRequest(Uri.parse(widget.checkoutUrl)); // Charger l'URL du paiement
-  }
+class _PaymentPageState extends State<PaymentPage> {
+  late InAppWebViewController webViewController;
+  bool isLoading = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+        title: const Text('Paiement'),
         centerTitle: true,
-        title: const Text("Paiement"),
-        backgroundColor: Colors.black54,
+        // backgroundColor: Colors.black54,
       ),
       body: Stack(
         children: [
-          WebViewWidget(controller: _controller), // Utiliser WebViewWidget
-          if (_isLoading)
+          InAppWebView(
+            initialUrlRequest: URLRequest(
+              url: WebUri(widget.paymentUrl),
+            ),
+            initialOptions: InAppWebViewGroupOptions(
+              crossPlatform: InAppWebViewOptions(
+                javaScriptEnabled: true,
+                useShouldOverrideUrlLoading: true,
+                mediaPlaybackRequiresUserGesture: false,
+              ),
+              android: AndroidInAppWebViewOptions(
+                useHybridComposition: true,
+              ),
+              ios: IOSInAppWebViewOptions(
+                allowsInlineMediaPlayback: true,
+              ),
+            ),
+            onWebViewCreated: (controller) {
+              webViewController = controller;
+            },
+            onLoadStart: (controller, url) {
+              setState(() {
+                isLoading = true;
+              });
+            },
+            onLoadStop: (controller, url) async {
+              setState(() {
+                isLoading = false;
+              });
+            },
+            onLoadError: (controller, url, code, message) {
+              setState(() {
+                isLoading = false;
+              });
+            },
+          ),
+          if (isLoading)
             const Center(
               child: CircularProgressIndicator(),
             ),

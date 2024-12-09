@@ -1,70 +1,52 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-const String payDunyaTestPublicKey = 'test_public_wBBuQi1HzyuzE7JvVSiQVqq2zSG';
-const String payDunyaTestPrivateKey =
-    'test_private_v9m098H9L9LyUcMoKcVHh5w9GDZ';
-const String payDunyaTestToken = '63cMPPhXHUMvGsd0JIyE';
-const String payDunyaBaseUrl =
-    'https://app.paydunya.com/sandbox-api/v1/checkout-invoice';
+const String payTechApiUrl = 'https://paytech.sn/api/payment/request-payment';
+const String payTechPublicKey = '9ed91844541cace52fb3e0480fa44ee1f9df268fc847013ee97a895c36dc4b7c';
+const String payTechSecretKey = 'dc56248303d51eaa40f1d973522f77682aa319b9ce9635ebbc58d97e48da1a81';
 
-Future<String?> initierPaiement(String description, double montant,
-    String devise) async {
-  final url = Uri.parse('$payDunyaBaseUrl/create');
-
+Future<String?> initierPaiement(String description, double montant) async {
+  final url = Uri.parse(payTechApiUrl);
   final headers = {
     'Content-Type': 'application/json',
-    'PAYDUNYA-MASTER-KEY': 'BnBBFiPm-bBCr-PV8n-9Xud-p9jn3HdIxUYZ',
-    'PAYDUNYA-PRIVATE-KEY': payDunyaTestPrivateKey,
-    'PAYDUNYA-PUBLIC-KEY': payDunyaTestPublicKey,
-    'PAYDUNYA-TOKEN': payDunyaTestToken,
+    'API_KEY': payTechPublicKey,
+    'API_SECRET': payTechSecretKey,
   };
 
   final body = jsonEncode({
-    "invoice": {
-      "items": [
-        {
-          "name": "Réservation de colis",
-          "quantity": 1,
-          "unit_price": montant.toStringAsFixed(2),
-          "total_price": montant.toStringAsFixed(2),
-          "description": description,
-        }
-      ],
-      "total_amount": montant.toStringAsFixed(2),
-      "currency": devise,
-    },
-    "store": {
-      "name": "Nom de l'Application",
-      "tagline": "Tagline de votre app",
-      "postal_address": "Adresse de votre entreprise",
-      "phone": "Numéro de téléphone",
-      "logo_url": "https://votre-logo-url.png"
-    },
-    "actions": {
-      "cancel_url": "https://votre-url-annulation",
-      "return_url": "https://votre-url-retour",
-      "callback_url": "https://votre-url-callback"
-    }
+    "item_name": description,
+    "item_price": montant.toStringAsFixed(2),
+    "currency": "XOF",
+    "ref_command": DateTime.now().millisecondsSinceEpoch.toString(),
+    "ipn_url": "https://votre-url-callback",
+    "success_url": "https://votre-url-retour",
+    "cancel_url": "https://votre-url-annulation",
+    "customer_email": "client@email.com",
+    "customer_phone": "+221771234567",
+    "env": "test"
   });
 
   try {
     final response = await http.post(url, headers: headers, body: body);
+    print("Statut de la réponse HTTP: ${response.statusCode}");
+    print("Réponse de l'API: ${response.body}");
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-
-      if (data['response_code'] == '00') {
-        return data['response_text']; // Checkout URL
+      if (data['success'] == 1) {
+        final redirectUrl = data['redirect_url'];
+        print("URL de redirection : $redirectUrl");
+        return redirectUrl;
       } else {
-        throw Exception("Erreur API : ${data['response_text']}");
+        print("Erreur PayTech : ${data['message']}");
       }
     } else {
-      throw Exception("Erreur HTTP : ${response.statusCode}");
+      print("Erreur HTTP : ${response.statusCode}");
+      print("Détail de la réponse : ${response.body}");
     }
   } catch (e) {
-    print("Exception : $e");
-    return null;
+    print("Exception attrapée : $e");
   }
-}
 
+  return null;
+}

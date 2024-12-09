@@ -1,14 +1,8 @@
 import 'dart:io';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:appli_gp/pages/inscription.dart';
-import 'package:appli_gp/pages/log.dart';
 import 'package:country_picker/country_picker.dart';
-import 'package:appli_gp/pages/reservation3.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
-
-import '../widgets/header_widget.dart';
 import '../widgets/custom_text_field1.dart';
 
 class ReservationScreen2 extends StatefulWidget {
@@ -30,7 +24,8 @@ class _ReservationScreenState extends State<ReservationScreen2> {
   TextEditingController lengthController = TextEditingController();
   TextEditingController widthController = TextEditingController();
   TextEditingController heightController = TextEditingController();
-  TextEditingController villeController = TextEditingController(); // Pour la ville
+  TextEditingController villeController =
+      TextEditingController(); // Pour la ville
 
   String? completePhoneNumber;
   String? selectedPackageType;
@@ -39,291 +34,350 @@ class _ReservationScreenState extends State<ReservationScreen2> {
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final annonceData = args?['annonce'];
     final annonceId = args?['annonceId'] as String?;
     final previousData1 = args?['previousData1'] as Map<String, dynamic>?;
 
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                    const LoginScreen2())); // Retourne à l'écran précédent
-          },
-        ),
-        centerTitle: true,
-        title: Text(
-          "Reservation",
-          style: GoogleFonts.roboto(
-            textStyle: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
-        ),
-        backgroundColor: Colors.black54,
-      ),
-      backgroundColor: Color(0xFFE0E0E0),
-
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          Padding(
-            padding: EdgeInsets.only(
-                right: MediaQuery.of(context).size.width * 0.05), // 5% padding
-            child: const Align(
-              alignment: Alignment.centerRight,
-
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    "Informations sur le destinataire",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 5), // Espacement
-                  Text(
-                    "Etape 2 sur 3",
-                    style: TextStyle(
-                      color: Colors.black45,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
+          centerTitle: true,
+          title: Text(
+            "Reservation",
+            style: GoogleFonts.roboto(
+              textStyle: const TextStyle(
+                fontSize: 20,
+                color: Colors.white,
               ),
             ),
           ),
-          SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 60.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center, // Aligne les icônes et les lignes
-              children: [
-                _buildStepIcon(Icons.person, Colors.black),
-
-                // Ligne entre les icônes
-                Expanded(
-                  child: Divider(
-                    color: Colors.black, // Couleur de la ligne
-                    thickness: 2, // Épaisseur de la ligne
-                  ),
-                ),
-
-                _buildStepIcon(Icons.account_box_outlined, Colors.black),
-
-                // Ligne entre les icônes
-                Expanded(
-                  child: Divider(
-                    color: Colors.grey, // Couleur de la ligne
-                    thickness: 2, // Épaisseur de la ligne
-                  ),
-                ),
-
-                _buildStepIcon(Icons.local_shipping, Colors.grey),
-              ],
+          backgroundColor: Colors.indigo,
+        ),
+        body: Stack(children: [
+          // Background Image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/top_background2.png',
+              fit: BoxFit.cover,
             ),
           ),
-          SizedBox(height: 30),
-          Form(
-            key: _formKey,
+          // Semi-transparent Overlay (optional, for better readability)
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.5), // Adjust opacity as needed
+            ),
+          ),
+          // Foreground Content
+          SingleChildScrollView(
+              child: Container(
+            constraints: BoxConstraints(
+              minHeight:
+                  MediaQuery.of(context).size.height, // Make it fill the screen
+            ),
             child: Column(
               children: [
-                CustomTextField1(
-                  controller: nomController,
-                  hintText: "Nom",
-                  type: TextInputType.text,
-                  isObsecre: false,
-                ),
-                CustomTextField1(
-                  controller: prenomController,
-                  hintText: "Prénom",
-                  type: TextInputType.text,
-                  isObsecre: false,
-                ),
-                SizedBox(height: 8),
-                Container(
-                  width: MediaQuery.of(context).size.width / 1.3,
-                  child: IntlPhoneField(
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      labelText: 'Numéro de téléphone',
-                      fillColor: Colors.white70,
-                      filled: true,
-                      contentPadding:
-                      const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                        borderSide: const BorderSide(
-                          color: Colors.black,
+                const SizedBox(height: 20),
+                Padding(
+                  padding: EdgeInsets.only(
+                      right: MediaQuery.of(context).size.width *
+                          0.05), // 5% padding
+                  child: const Align(
+                    alignment: Alignment.centerRight,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          "Informations sur le destinataire",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
                         ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                        borderSide: const BorderSide(
-                          color: Colors.black,
+                        SizedBox(height: 5),
+                        Text(
+                          "Etape 2 sur 3",
+                          style: TextStyle(
+                            color: Colors.white54,
+                            fontSize: 14,
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                    onChanged: (phone) {
-                      setState(() {
-                        completePhoneNumber = phone.completeNumber; // Met à jour le numéro complet
-                      });// Sauvegarde le numéro complet
-                    },
                   ),
                 ),
-
-                CustomTextField1(
-                  controller: adressController,
-                  hintText: "Adresse",
-                  type: TextInputType.text,
-                  isObsecre: false,
-                ),
-                SizedBox(height: 12),
-                // Pays et ville sur la même ligne
-                Container(
-                  width: MediaQuery.of(context).size.width / 1.3, // Définir la largeur du Row
+                SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 60.0),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Container pour le champ du pays
+                      _buildStepIcon(Icons.person, Colors.blue),
                       Expanded(
-                        flex: 1,
-                        child: GestureDetector(
-                          onTap: () {
-                            showCountryPicker(
-                              context: context,
-                              showPhoneCode: false, // Cache les codes téléphoniques
-                              countryListTheme: CountryListThemeData(
-                                flagSize: 25,
-                                backgroundColor: Colors.white,
-                                textStyle: TextStyle(fontSize: 16, color: Colors.blueGrey),
-                                bottomSheetHeight: 500,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(20.0),
-                                  topRight: Radius.circular(20.0),
-                                ),
-                              ),
-                              onSelect: (Country country) {
-                                setState(() {
-                                  _selectedCountry = country; // Stocker le pays sélectionné
-                                });
-                                print('Country selected: ${country.name}'); // Utilise seulement le nom du pays
-                              },
-                            );
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white70,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.black),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(_selectedCountry == null
-                                    ? "Pays"
-                                    : _selectedCountry!.name), // Affiche seulement le nom du pays
-                                Icon(Icons.arrow_drop_down),
-                              ],
-                            ),
+                        child: Divider(
+                          color: Colors.blue,
+                          thickness: 2,
+                        ),
+                      ),
+                      _buildStepIcon(Icons.account_box_outlined,
+                          Colors.blue),
+                      Expanded(
+                        child: Divider(
+                          color: Colors.white70,
+                          thickness: 2,
+                        ),
+                      ),
+                      _buildStepIcon(Icons.local_shipping, Colors.black38),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 30),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      CustomTextField1(
+                        controller: nomController,
+                        hintText: "Nom",
+                        type: TextInputType.text,
+                        isObscure: false,
+                        prefixIcon: Padding(
+                          padding:
+                              const EdgeInsets.only(left: 10.0, right: 10.0),
+                          child: Image.asset(
+                            'assets/images/name.png',
+                            // Replace with your asset path
+                            width: 20,
+                            height: 20,
                           ),
                         ),
                       ),
-                      SizedBox(width: 10),
-                      // Container pour le champ ville
-                      Expanded(
-                        flex: 1,
-                        child: TextFormField(
-                          controller: villeController,
+                      CustomTextField1(
+                        controller: prenomController,
+                        hintText: "Prénom",
+                        type: TextInputType.text,
+                        isObscure: false,
+                        prefixIcon: Padding(
+                          padding:
+                              const EdgeInsets.only(left: 10.0, right: 10.0),
+                          child: Image.asset(
+                            'assets/images/name.png',
+                            // Replace with your asset path
+                            width: 20,
+                            height: 20,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Container(
+                        width: MediaQuery.of(context).size.width / 1.3,
+                        child: IntlPhoneField(
+                          keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
-                            labelText: 'Ville',
-                            fillColor: Colors.white70,
+                            labelText: 'Numéro de téléphone',
+                            fillColor: Colors.white,
                             filled: true,
                             contentPadding: const EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 15.0),
+                                vertical: 10.0, horizontal: 20.0),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: const BorderSide(
-                                color: Colors.black,
+                                color: Colors.deepPurple,
                               ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               borderSide: const BorderSide(
-                                color: Colors.black,
+                                color: Colors.black38,
                               ),
                             ),
                           ),
+                          onChanged: (phone) {
+                            setState(() {
+                              completePhoneNumber = phone.completeNumber;
+                            });
+                          },
                         ),
                       ),
+
+                      CustomTextField1(
+                        controller: adressController,
+                        hintText: "Adresse",
+                        type: TextInputType.text,
+                        isObscure: false,
+                        prefixIcon: Padding(
+                          padding:
+                              const EdgeInsets.only(left: 10.0, right: 10.0),
+                          child: Image.asset(
+                            'assets/images/home2.png',
+                            width: 20,
+                            height: 20,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      // Pays et ville sur la même ligne
+                      Container(
+                        width: MediaQuery.of(context).size.width /
+                            1.3, // Définir la largeur du Row
+                        child: Row(
+                          children: [
+                            // Container pour le champ du pays
+                            Expanded(
+                              flex: 1,
+                              child: GestureDetector(
+                                onTap: () {
+                                  showCountryPicker(
+                                    context: context,
+                                    showPhoneCode: false,
+                                    // Cache les codes téléphoniques
+                                    countryListTheme: CountryListThemeData(
+                                      flagSize: 25,
+                                      backgroundColor: Colors.white,
+                                      textStyle: TextStyle(
+                                          fontSize: 16, color: Colors.blueGrey),
+                                      bottomSheetHeight: 500,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(20.0),
+                                        topRight: Radius.circular(20.0),
+                                      ),
+                                    ),
+                                    onSelect: (Country country) {
+                                      setState(() {
+                                        _selectedCountry =
+                                            country; // Stocker le pays sélectionné
+                                      });
+                                      print(
+                                          'Country selected: ${country.name}'); // Utilise seulement le nom du pays
+                                    },
+                                  );
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 12, horizontal: 10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: Colors.black38),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        _selectedCountry == null
+                                            ? "Pays"
+                                            : _selectedCountry!.name,
+                                        style: const TextStyle(
+                                          color: Colors.black87,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      Icon(Icons.arrow_drop_down),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            // Container pour le champ ville
+                            Expanded(
+                              flex: 1,
+                              child: TextFormField(
+                                controller: villeController,
+                                decoration: InputDecoration(
+                                  labelText: 'Ville',
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 15.0),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    borderSide: const BorderSide(
+                                      color: Colors.deepPurple,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    borderSide: const BorderSide(
+                                      color: Colors.black38,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
                     ],
                   ),
-                )
-
-
-              ],
-            ),
-          ),
-          const SizedBox(height: 30),
-          Padding(
-            padding:  EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.12,), // Ajoute un peu de padding sur les côtés
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center, // Aligne le bouton à droite
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 85, vertical: 15), // Ajuste la taille du bouton
-                    backgroundColor: Colors.black, // Couleur de fond du bouton
-                  ),
-                  onPressed: () {
-                    // Collect new data from the second page
-                    final previousData2 = {
-                      'prenom_destinataire': prenomController.text,
-                      'nom_destinataire': nomController.text,
-                      'addresse_destinataire': adressController.text,
-                      'phone_destinataire': completePhoneNumber ?? '',
-                      'ville_destinataire': villeController.text,
-                      'pays_destinataire': _selectedCountry?.name ?? '',
-                    };
-
-                    // Combine previous and new data
-                    final combinedData = {
-                      'annonce': annonceData,
-                      'annonceId':annonceId,
-                      'previousData1': previousData1,
-                      'previousData2': previousData2,
-                    };
-
-                    // Navigate to the next page with the combined data
-                    Navigator.pushNamed(
-                      context,
-                      '/reservation3',
-                      arguments: combinedData,
-                    );// Action à réaliser lors du clic sur le bouton
-                  },
+                ),
+                const SizedBox(height: 30),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width * 0.12,
+                  ), // Ajoute un peu de padding sur les côtés
                   child: Row(
-                    mainAxisSize: MainAxisSize.min, // Garde le bouton compact
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    // Aligne le bouton à droite
                     children: [
-                      Text(
-                        'Continuer'.toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 130, vertical: 15),
+                          // Ajuste la taille du bouton
+                          backgroundColor: Colors
+                              .deepPurple.shade900, // Couleur de fond du bouton
+                        ),
+                        onPressed: () {
+                          // Collect new data from the second page
+                          final previousData2 = {
+                            'prenom_destinataire': prenomController.text,
+                            'nom_destinataire': nomController.text,
+                            'addresse_destinataire': adressController.text,
+                            'phone_destinataire': completePhoneNumber ?? '',
+                            'ville_destinataire': villeController.text,
+                            'pays_destinataire': _selectedCountry?.name ?? '',
+                          };
+
+                          // Combine previous and new data
+                          final combinedData = {
+                            'annonce': annonceData,
+                            'annonceId': annonceId,
+                            'previousData1': previousData1,
+                            'previousData2': previousData2,
+                          };
+
+                          // Navigate to the next page with the combined data
+                          Navigator.pushNamed(
+                            context,
+                            '/reservation3',
+                            arguments: combinedData,
+                          ); // Action à réaliser lors du clic sur le bouton
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          // Garde le bouton compact
+                          children: [
+                            Text(
+                              'Continuer'.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -331,12 +385,11 @@ class _ReservationScreenState extends State<ReservationScreen2> {
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+          ))
+        ]));
   }
 }
+
 Widget _buildStepIcon(IconData icon, Color color) {
   return Container(
     padding: const EdgeInsets.all(10),

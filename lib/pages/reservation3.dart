@@ -172,6 +172,15 @@ class _ReservationScreenState extends State<ReservationScreen3> {
                                   hintText: "Poids du colis (kg)",
                                   type: TextInputType.number,
                                   isObscure: false,
+                                  prefixIcon: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Image.asset(
+                                      'assets/images/kettlebell.png',
+                                      // Replace with your email icon
+                                      height: 20,
+                                      width: 20,
+                                    ),
+                                  ),
                                 ),
                               ),
                               SizedBox(width: 2),
@@ -227,7 +236,7 @@ class _ReservationScreenState extends State<ReservationScreen3> {
                                 children: [
                                   Text('Enveloppe'),
                                   Image.asset(
-                                    'assets/images/enveloppe.jpeg',
+                                    'assets/images/enveloppe.png',
                                     width: 40,
                                     height: 24,
                                   ),
@@ -242,7 +251,7 @@ class _ReservationScreenState extends State<ReservationScreen3> {
                                 children: [
                                   Text('Boite'),
                                   Image.asset(
-                                    'assets/images/chaussure1.jpeg',
+                                    'assets/images/boite-ouverte.jpeg',
                                     width: 40,
                                     height: 24,
                                   ),
@@ -257,7 +266,7 @@ class _ReservationScreenState extends State<ReservationScreen3> {
                                 children: [
                                   Text('Carton'),
                                   Image.asset(
-                                    'assets/images/produit.jpeg',
+                                    'assets/images/carton.png',
                                     width: 40,
                                     height: 24,
                                   ),

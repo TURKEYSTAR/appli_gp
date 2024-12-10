@@ -51,13 +51,13 @@ class _AnnonceScreenState extends State<AnnonceScreen> {
               ),
             ),
           ),
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.indigo,
         ),
         body: Stack(children: [
           // Background Image
           Positioned.fill(
             child: Image.asset(
-              'assets/images/top_background.png',
+              'assets/images/top_background2.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -375,9 +375,9 @@ class _AnnonceScreenState extends State<AnnonceScreen> {
                             borderRadius: BorderRadius.circular(12.0),
                           ),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 130, vertical: 15),
-                          // Ajuste la taille du bouton
-                          backgroundColor: Colors.white,
+                              horizontal: 130, vertical: 15
+                          ),
+                          backgroundColor: Colors.indigo,
                         ),
                         onPressed: () {
                           Navigator.push(
@@ -394,11 +394,9 @@ class _AnnonceScreenState extends State<AnnonceScreen> {
                               ),
                             ),
                           );
-                          // Action à réaliser lors du clic sur le bouton
                         },
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          // Garde le bouton compact
                           children: [
                             Text(
                               'Continuer'.toUpperCase(),

@@ -41,7 +41,6 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.blue.shade50,
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -69,7 +68,6 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
               fit: BoxFit.cover,
             ),
           ),
-          // Semi-transparent Overlay (optional, for better readability)
           Positioned.fill(
             child: Container(
               color: Colors.black.withOpacity(0.5), // Adjust opacity as needed
@@ -80,7 +78,7 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
               child: Container(
             constraints: BoxConstraints(
               minHeight:
-                  MediaQuery.of(context).size.height, // Make it fill the screen
+                  MediaQuery.of(context).size.height,
             ),
             child: Padding(
               padding: const EdgeInsets.all(10.0),

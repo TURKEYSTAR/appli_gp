@@ -64,25 +64,13 @@ flutter:
   assets:
     - assets/images/camion-de-livraison.png
     - assets/images/images.png
-    - assets/lottie/lot1.json
-    - assets/lottie/lot2.json
-    - assets/lottie/lot3.json
-    - assets/lottie/lot4.json
-    - assets/lottie/lot5.json
-    - assets/lottie/lot6.json
-    - assets/lottie/lot7.json
     - assets/lottie/paymentpurple.json
-    - assets/lottie/delivery.json
-    - assets/lottie/delivery1.json
     - assets/lottie/truck.json
-    - assets/lottie/truck2.json
     - assets/lottie/track1.json
-    - assets/lottie/track2.json
-    - assets/lottie/lotcarte.json
-    - assets/images/poids.jpeg
-    - assets/images/produit.jpeg
-    - assets/images/chaussure1.jpeg
-    - assets/images/enveloppe.jpeg
+    - assets/images/boite-ouverte.png
+    - assets/images/carton.png
+    - assets/images/enveloppe.png
+    - assets/images/kettlebell.png
     - assets/images/top_background.png
     - assets/images/top_background1.png
     - assets/images/top_background2.png

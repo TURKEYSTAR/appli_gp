@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:timeline_tile/timeline_tile.dart';
+import '../models/TimeLineTileUi.dart';
 
 class TrackingPage extends StatefulWidget {
   const TrackingPage({super.key});
@@ -11,87 +13,144 @@ class _TrackingPageState extends State<TrackingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context, 1);
-          },
-        ),
+        title: const Text('Suivi de commande'),
         centerTitle: true,
-        title: Text(
-            " ",
-        ),
-        backgroundColor: Color(0xFF6672FF),
+        backgroundColor: Colors.indigo.shade100.withOpacity(0.8),
       ),
-      body: Column(
-
-      ),
-    );
-  }
-
-  Widget body() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: 50),
-        Padding(
-          padding: const EdgeInsets.only(left : 35.0),
-          child: Text(
-            "ID de votre colis :",
-            style: TextStyle(fontSize: 16),
+      body: Stack(
+        children: [
+          // Background Image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/top_background.png',
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: GestureDetector(
-            onTap: () {
-
-            },
-            child: TextField(
-              enabled: false,
-              decoration: InputDecoration(
-                hintText: 'e.g Vtqc45fR23678',
-                contentPadding:
-                EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide.none,
-                ),
-                fillColor: Colors.white70,
-                filled: true,
-                suffixIcon: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Image.asset(
-                    'assets/images/search_icon.png',
-                    height: 20,
-                    width: 20,
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.3), // Adjust opacity for effect
+            ),
+          ),
+          // Foreground Content
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 30.0, right: 30.0, top: 20.0),
+              child: ListView(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                children: [
+                  TimeLineTileUI(
+                    isFirst: true,
+                    isLast: false,
+                    isPast: true,
+                    eventChild: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.book_online, color: Colors.white),
+                            SizedBox(width: 15.0),
+                            Text(
+                              'Réservation enregistrée',
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          'Votre réservation a été enregistrée avec succès et sera traitée prochainement.',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                  TimeLineTileUI(
+                    isFirst: false,
+                    isLast: false,
+                    isPast: true,
+                    eventChild: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.card_giftcard, color: Colors.white),
+                            SizedBox(width: 15.0),
+                            Text(
+                              'Réservation validée',
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          'Votre réservation a été validée et est prête pour les prochaines étapes.',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                  TimeLineTileUI(
+                    isFirst: false,
+                    isLast: false,
+                    isPast: true,
+                    eventChild: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.local_shipping, color: Colors.white),
+                            SizedBox(width: 15.0),
+                            Text(
+                              'Paiement effectué',
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          'Le paiement a été reçu avec succès et la réservation est en cours de traitement.',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                  TimeLineTileUI(
+                    isFirst: false,
+                    isLast: true,
+                    isPast: true,
+                    eventChild: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.home_work, color: Colors.white),
+                            SizedBox(width: 15.0),
+                            Text(
+                              'Livraison en cours',
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          'Votre commande est en route. Veuillez rester disponible pour la recevoir.',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        ),
-        SizedBox(height: 20),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(35, 2, 31, 0),
-          child: Row(
-            children: [
-              Text(
-                "Résultats: ",
-                style: TextStyle(fontSize: 25),
-              ),
-              Spacer(),
-              Icon(
-                Icons.close,
-                size: 25,
-              )
-            ],
-          ),
-        ),
-        SizedBox(height: 5),
-      ],
+        ],
+      ),
     );
   }
 }

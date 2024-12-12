@@ -1,3 +1,4 @@
+import 'package:appli_gp/pages/detail_notif2.dart';
 import 'package:appli_gp/pages/search_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -111,6 +112,34 @@ class _HomeBodyState extends State<HomeBody> {
                     ),
                   ),
                   SizedBox(height: 60),
+                  // Ajout du bouton vers DetailNotif2
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => DetailNotif2Page()),
+                        );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.notifications, color: Colors.white),
+                          SizedBox(width: 10),
+                          Text(
+                            "Voir les détails de Notification",
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 30.0),
                     child: Align(
@@ -172,7 +201,7 @@ class _HomeBodyState extends State<HomeBody> {
                 decoration: InputDecoration(
                   hintText: 'Tapez ici...',
                   contentPadding:
-                      EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                  EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
                     borderSide: BorderSide.none,
@@ -446,7 +475,7 @@ class _HomeBodyState extends State<HomeBody> {
                       villeArrivee: annonceData['ville_arrivee'] ?? 'Unknown',
                       paysArrivee: annonceData['pays_arrivee'] ?? 'Unknown',
                       dateDepart: (annonceData['date_depart'] as Timestamp?)
-                              ?.toDate() ??
+                          ?.toDate() ??
                           DateTime.now(),
                     ),
                   ),

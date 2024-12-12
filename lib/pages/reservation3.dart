@@ -251,7 +251,7 @@ class _ReservationScreenState extends State<ReservationScreen3> {
                                 children: [
                                   Text('Boite'),
                                   Image.asset(
-                                    'assets/images/boite-ouverte.jpeg',
+                                    'assets/images/boite-ouverte.png',
                                     width: 40,
                                     height: 24,
                                   ),
@@ -447,19 +447,6 @@ class _ReservationScreenState extends State<ReservationScreen3> {
                           if (_formKey.currentState!.validate()) {
                             _saveReservation();
                           }
-
-                          // Call _sendNotificationToCreator when reservation is confirmed
-
-                          // Ajoutez ici d'autres actions à réaliser après la réservation
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text(
-                                    'Réservation envoyée et notification envoyée au transporteur')),
-                          );
-
-                          // Optionally navigate back or show a confirmation message
-                          Navigator.pop(
-                              context, "Reservation completed successfully.");
                         },
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -486,8 +473,7 @@ class _ReservationScreenState extends State<ReservationScreen3> {
   }
 
   Future<void> _saveReservation() async {
-    final User? user =
-        FirebaseAuth.instance.currentUser; // Récupère l'utilisateur actuel
+    final User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Erreur: Utilisateur non connecté")),
@@ -495,9 +481,8 @@ class _ReservationScreenState extends State<ReservationScreen3> {
       return;
     }
 
-    final String userId = user.uid; // Récupère l'ID de l'utilisateur
-    final args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final String userId = user.uid;
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final annonceId = args?['annonceId'] as String?;
     final previousData1 = args?['previousData1'] as Map<String, dynamic>?;
     final previousData2 = args?['previousData2'] as Map<String, dynamic>?;
@@ -517,41 +502,60 @@ class _ReservationScreenState extends State<ReservationScreen3> {
         'quantite': quantity,
         'statut': 'en attente',
         'date_cs': null,
-        'dateCreation': Timestamp.now(),
+        'date_creation': Timestamp.now(),
         'transporteur_id': annonceData['user_id'],
         'annonce_id': annonceId,
       };
 
-      // Enregistre la réservation et récupère son ID
-      DocumentReference reservationRef = await FirebaseFirestore.instance
-          .collection('reservations')
-          .add(reservationData);
-      String reservationId = reservationRef.id;
+      try {
+        // Save reservation and get its ID
+        DocumentReference reservationRef = await FirebaseFirestore.instance
+            .collection('reservations')
+            .add(reservationData);
+        String reservationId = reservationRef.id;
 
-      // Enregistre la notification avec reservationId
-      await _enregistrerNotificationReservation(
-        annonceId: annonceId!,
-        reservationId: reservationId,
-        // Ajout de l'ID de la réservation
-        expediteurId: userId,
-        transporteurId: annonceData['user_id'],
-        typeNotification: 'reservation',
-      );
+        // Save a corresponding colis document
+        Map<String, dynamic> colisData = {
+          'reservation_id': reservationId,
+          'expediteur_id': userId,
+          'transporteur_id': annonceData['user_id'],
+          'annonce_id': annonceId,
+          'status': 'En attente de validation',
+          'date_creation': Timestamp.now(),
+          // Add other necessary colis fields here
+        };
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text("Réservation envoyée avec succès"),
-            backgroundColor: Colors.green),
-      );
+        await FirebaseFirestore.instance.collection('parcels').add(colisData);
 
-      // Redirection après succès
-      Navigator.pushReplacementNamed(context, '/home', arguments: 1);
+        // Save notification for reservation
+        await _enregistrerNotificationReservation(
+          annonceId: annonceId!,
+          reservationId: reservationId,
+          expediteurId: userId,
+          transporteurId: annonceData['user_id'],
+          typeNotification: 'reservation',
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text("Réservation et colis créés avec succès"),
+              backgroundColor: Colors.green),
+        );
+
+        // Navigate back or show confirmation
+        Navigator.pushReplacementNamed(context, '/home', arguments: 0);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erreur lors de la réservation: $e"), backgroundColor: Colors.red),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Erreur: Données manquantes")),
       );
     }
   }
+
 
   Future<void> _enregistrerNotificationReservation({
     required String annonceId,
@@ -561,7 +565,6 @@ class _ReservationScreenState extends State<ReservationScreen3> {
     required String typeNotification,
   }) async {
     try {
-      // Ajout de la notification pour le transporteur
       await FirebaseFirestore.instance.collection('notifications').add({
         'type': typeNotification,
         'transporteur_id': transporteurId,

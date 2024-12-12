@@ -234,7 +234,8 @@ class _SearchPageState extends State<SearchPage> {
           Navigator.pushNamed(
             context,
             '/detailsProfile',
-            arguments: transporteurId, // Pass correct ID
+            arguments: {
+              'transporteurId':transporteurId,} // Pass correct ID
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(

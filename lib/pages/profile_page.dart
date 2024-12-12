@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -18,6 +20,7 @@ class _ProfilePageState extends State<ProfilePage>
     "Mobile": "Chargement...",
     "Email": "Chargement...",
   };
+
 
   late TabController _tabController;
 
@@ -58,6 +61,22 @@ class _ProfilePageState extends State<ProfilePage>
     return FirebaseFirestore.instance
         .collection('annonces')
         .where('user_id', isEqualTo: currentUser?.uid)
+        .snapshots()
+        .map((query) => query.docs);
+  }
+
+  Stream<List<QueryDocumentSnapshot>> fetchReservations() {
+    return FirebaseFirestore.instance
+        .collection('reservations')
+        .where('expediteur_id', isEqualTo: currentUser?.uid)
+        .snapshots()
+        .map((query) => query.docs);
+  }
+
+  Stream<List<QueryDocumentSnapshot>> fetchColis() {
+    return FirebaseFirestore.instance
+        .collection('parcels')
+        .where('expediteur_id', isEqualTo: currentUser?.uid)
         .snapshots()
         .map((query) => query.docs);
   }
@@ -263,13 +282,13 @@ class _ProfilePageState extends State<ProfilePage>
           child: TabBarView(
             controller: _tabController,
             children: [
-              if (role == "Transporteur") _buildAnnoncesList(context),
-              _buildContentSection(
-                title: role == "Transporteur" ? "Statistiques" : "Réservations",
-                description: role == "Transporteur"
-                    ? "Visualisez vos performances."
-                    : "Gérez vos réservations ici.",
-              ),
+              // First Tab: Annonces or Colis
+              if (role == "Transporteur") _buildAnnoncesList(context)
+              else _buildColisList(),
+
+              // Second Tab: Statistiques or Réservations
+              if (role == "Transporteur") _buildStatistiquesPlaceholder()
+              else _buildReservationsList(),
             ],
           ),
         ),
@@ -353,6 +372,105 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  Widget _buildReservationsList() {
+    return StreamBuilder<List<QueryDocumentSnapshot>>(
+      stream: fetchReservations(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text('Erreur lors de la récupération des réservations'));
+        }
+        if (!snapshot.hasData) {
+          return Center(child: CircularProgressIndicator());
+        }
+        var reservations = snapshot.data!;
+        if (reservations.isEmpty) {
+          return Center(child: Text('Aucune réservation trouvée'));
+        }
+        return ListView.builder(
+          itemCount: reservations.length,
+          itemBuilder: (context, index) {
+            var reservationData = reservations[index].data() as Map<String, dynamic>;
+
+            // Convert and format the Firestore timestamp
+            String formattedDate = "Non spécifiée";
+            if (reservationData['date_creation'] != null &&
+                reservationData['date_creation'] is Timestamp) {
+              final timestamp = reservationData['date_creation'] as Timestamp;
+              final dateTime = timestamp.toDate();
+              formattedDate = DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
+            }
+
+            return Card(
+              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: ListTile(
+                title: Text("Réservation ${index + 1}"),
+                subtitle: Text(
+                  "Destination: ${reservationData['ville_destinataire'] ?? 'Non spécifiée'}\n"
+                      "Date: $formattedDate",
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildColisList() {
+    return StreamBuilder<List<QueryDocumentSnapshot>>(
+      stream: fetchColis(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text('Erreur lors de la récupération des colis'));
+        }
+        if (!snapshot.hasData) {
+          return Center(child: CircularProgressIndicator());
+        }
+        var colisList = snapshot.data!;
+        if (colisList.isEmpty) {
+          return Center(child: Text('Aucun colis trouvé'));
+        }
+        return ListView.builder(
+          itemCount: colisList.length,
+          itemBuilder: (context, index) {
+            var colisData = colisList[index].data() as Map<String, dynamic>;
+
+            // Format date if necessary
+            String formattedDate = '';
+            if (colisData['date_creation'] != null) {
+              formattedDate = DateFormat('dd/MM/yyyy').format(
+                (colisData['date_creation'] as Timestamp).toDate(),
+              );
+            }
+
+            return Card(
+              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: ListTile(
+                leading: Icon(Icons.inbox, color: Colors.blue),
+                title: Text("Colis ${index + 1}"),
+                subtitle: Text(
+                  'Créé le: $formattedDate\n'
+                      'Statut: ${colisData['status'] ?? 'Inconnu'}',
+                ),
+                trailing: IconButton(
+                  icon: Icon(Icons.arrow_forward, color: Colors.grey),
+                  onPressed: () {
+                    // Naviguer vers TrackingPage avec les arguments
+                    Navigator.pushNamed(
+                      context,
+                      '/tracking',
+                    );
+                  },
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+
   Widget _buildContentSection(
       {required String title, required String description}) {
     return Center(
@@ -382,3 +500,29 @@ class _ProfilePageState extends State<ProfilePage>
     super.dispose();
   }
 }
+
+Widget _buildStatistiquesPlaceholder() {
+  return Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.bar_chart, size: 50, color: Colors.deepPurple.shade700),
+        SizedBox(height: 20),
+        Text(
+          "Statistiques",
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 10),
+        Text(
+          "Aucune statistique disponible pour le moment.",
+          style: TextStyle(fontSize: 16, color: Colors.grey),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    ),
+  );
+}
+
+
+
+

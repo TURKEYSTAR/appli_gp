@@ -38,7 +38,7 @@ class _ReinitialisationScreenState extends State<ReinitialisationScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             if (widget.source == 'settings') {
-              Navigator.pop(context, 3);
+              Navigator.pop(context, 2);
             } else if (widget.source == 'login') {
               Navigator.pop(context);
             }

@@ -2,10 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class DetailsProfilePage extends StatefulWidget {
-  final String transporteurId;
-
-  DetailsProfilePage({required this.transporteurId});
-
   @override
   _DetailsProfilePageState createState() => _DetailsProfilePageState();
 }
@@ -16,6 +12,7 @@ class _DetailsProfilePageState extends State<DetailsProfilePage> {
   String? email;
   String? phoneNumber;
   String? address;
+  String? transporteurId; // Le transporteurId récupéré
 
   @override
   void initState() {
@@ -23,34 +20,41 @@ class _DetailsProfilePageState extends State<DetailsProfilePage> {
     _fetchTransporteurData();
   }
 
+  // Récupérer les arguments (transporteurId) passés par la page précédente
   Future<void> _fetchTransporteurData() async {
-    try {
-      print('Fetching data for transporteurId: ${widget.transporteurId}');
-      final transporteurDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.transporteurId)
-          .get();
+    // Récupérer les arguments
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    transporteurId = args?['transporteurId'];
 
-      if (transporteurDoc.exists) {
+    if (transporteurId != null) {
+      try {
+        // Récupérer les informations du transporteur à partir de Firestore
+        final transporteurDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(transporteurId) // Utiliser transporteurId récupéré
+            .get();
+
+        if (transporteurDoc.exists) {
+          setState(() {
+            displayName = transporteurDoc.data()?['username'];
+            role = transporteurDoc.data()?['role'];
+            email = transporteurDoc.data()?['email'];
+            phoneNumber = transporteurDoc.data()?['phone'];
+            address = transporteurDoc.data()?['address'];
+          });
+        } else {
+          setState(() {
+            displayName = "Utilisateur non trouvé";
+            role = "Non défini";
+          });
+        }
+      } catch (e) {
+        print("Erreur lors de la récupération des données du transporteur: $e");
         setState(() {
-          displayName = transporteurDoc.data()?['username'];
-          role = transporteurDoc.data()?['role'];
-          email = transporteurDoc.data()?['email'];
-          phoneNumber = transporteurDoc.data()?['phone'];
-          address = transporteurDoc.data()?['address']; // Example field
-        });
-      } else {
-        setState(() {
-          displayName = "Utilisateur non trouvé";
-          role = "Non défini";
+          displayName = "Erreur de chargement";
+          role = "Erreur";
         });
       }
-    } catch (e) {
-      print("Error fetching transporteur data: $e");
-      setState(() {
-        displayName = "Erreur de chargement";
-        role = "Erreur";
-      });
     }
   }
 
@@ -76,7 +80,7 @@ class _DetailsProfilePageState extends State<DetailsProfilePage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Top Background Image
+          // Background Image
           Container(
             height: 200,
             width: double.infinity,
@@ -108,7 +112,7 @@ class _DetailsProfilePageState extends State<DetailsProfilePage> {
                 ),
                 SizedBox(height: 20),
 
-                // Collapsible Information Section
+                // Personal Information Section
                 _buildSectionWithDetails(
                   title: "Informations personnelles",
                   icon: Icons.person,

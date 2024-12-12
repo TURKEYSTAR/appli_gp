@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: (FirebaseAuth.instance.currentUser != null) ? '/home' : '/',
+      initialRoute: (FirebaseAuth.instance.currentUser != null) ? '/tracking' : '/',
       routes: {
         '/': (context) => OnboardingScreen(),
         '/home': (context) => HomePage(),
@@ -75,7 +75,7 @@ class MyApp extends StatelessWidget {
         '/reservation3': (context) => ReservationScreen3(),
         '/detailsAnnonce': (context) => DetailAnnoncePage(),
         '/tracking': (context) => TrackingPage(),
-        '/detailsProfile': (context) => DetailsProfilePage(transporteurId: 'some_id'),
+        '/detailsProfile': (context) => DetailsProfilePage(),
         '/detailNotif1': (context) => DetailReservationPage(),
         '/editProfile': (context) => EditProfilePage(),
       },
@@ -96,7 +96,6 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     HomeBody(),
-    TrackingPage(),
     ProfilePage(),
     SettingsPage(),
   ];
@@ -148,10 +147,6 @@ class _HomePageState extends State<HomePage> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home, size: 30, color: Colors.blue),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map, size: 30, color: Colors.blue),
             label: '',
           ),
           BottomNavigationBarItem(

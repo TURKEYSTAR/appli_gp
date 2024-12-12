@@ -38,14 +38,14 @@ class TransportWidget extends StatelessWidget {
           children: [
             Icon(
               data,
-              color: isSelected ? Colors.indigo : Colors.black54,
+              color: isSelected ? Colors.blue : Colors.white,
               size: 30,
             ),
             SizedBox(height: 5),
             Text(
               label ?? '',
               style: TextStyle(
-                color: isSelected ? Colors.indigo : Colors.black54,
+                color: isSelected ? Colors.blue : Colors.white,
                 fontSize: 14,
               ),
             ),

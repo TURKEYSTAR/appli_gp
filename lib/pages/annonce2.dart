@@ -96,7 +96,7 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
                           _buildStepIcon(Icons.list_alt_sharp, Colors.blue),
                           Expanded(
                             child: Divider(
-                              color: Colors.blue,
+                              color: Colors.indigo,
                               thickness: 2,
                             ),
                           ),
@@ -406,7 +406,7 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
             borderRadius: BorderRadius.circular(12.0),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 130, vertical: 15),
-          backgroundColor: Colors.blue.shade300,
+          backgroundColor: Colors.indigo,
         ),
         onPressed: () {
           if (_formKey.currentState!.validate()) {
@@ -473,7 +473,7 @@ class _AnnonceScreen2State extends State<AnnonceScreen2> {
       );
 
       // Navigate to the Profile page after successful submission
-      Navigator.pushReplacementNamed(context, '/home', arguments: 1);
+      Navigator.pushReplacementNamed(context, '/profile', arguments: 1);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Erreur: Données manquantes")),

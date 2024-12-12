@@ -160,7 +160,7 @@ class NotificationPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Notifications'),
-        backgroundColor: Colors.grey[300],
+        backgroundColor: Color(0xFF6672FF),
         iconTheme: IconThemeData(color: Colors.black45),
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(

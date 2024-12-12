@@ -25,7 +25,7 @@ class _DetailReservationPageState extends State<DetailReservationPage> {
     required String typeNotification,
   }) async {
     try {
-      // Mise à jour du statut dans Firestore
+      // Update reservation status in Firestore
       await FirebaseFirestore.instance
           .collection('reservations')
           .doc(reservationId)
@@ -34,7 +34,17 @@ class _DetailReservationPageState extends State<DetailReservationPage> {
         'date_cs': Timestamp.now(),
       });
 
-      // Ajout de la notification pour l'expéditeur
+      // Update related parcels' status to "En attente du Paiement"
+      QuerySnapshot parcelSnapshot = await FirebaseFirestore.instance
+          .collection('parcels')
+          .where('reservation_id', isEqualTo: reservationId)
+          .get();
+
+      for (var parcel in parcelSnapshot.docs) {
+        await parcel.reference.update({'status': 'En attente du paiement'});
+      }
+
+      // Add a notification for the sender
       await FirebaseFirestore.instance.collection('notifications').add({
         'type': typeNotification,
         'expediteur_id': expediteurId,
@@ -44,12 +54,13 @@ class _DetailReservationPageState extends State<DetailReservationPage> {
         'date_notification': Timestamp.now(),
       });
 
-      print("Statut mis à jour et notification envoyée.");
+      print("Statut mis à jour, colis mis à jour, et notification envoyée.");
     } catch (e) {
       print("Erreur : $e");
       throw Exception("Impossible de changer le statut de la réservation.");
     }
   }
+
 
 
   @override
@@ -197,12 +208,18 @@ class _DetailReservationPageState extends State<DetailReservationPage> {
                   content: Text('Êtes-vous sûr de vouloir valider cette réservation ?'),
                   actions: [
                     TextButton(
-                      onPressed: () => Navigator.pop(context), // Fermer le dialog
-                      child: Text('Annuler'),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      }, // Fermer le dialog
+                      child: Text('Non'),
                     ),
                     TextButton(
                       onPressed: () async {
-                        Navigator.pop(context); // Fermer le dialog
+                        Navigator.pushNamed(
+                          context,
+                          '/home',
+                          arguments: 0,
+                        ); // Fermer le dialog
                         try {
                           String reservationId = notificationData?['reservation_id'];
                           String expediteurId = notificationData?['expediteur_id'];
@@ -227,7 +244,7 @@ class _DetailReservationPageState extends State<DetailReservationPage> {
                           );
                         }
                       },
-                      child: Text('OK'),
+                      child: Text('Oui'),
                     ),
                   ],
                 );
@@ -276,12 +293,18 @@ class _DetailReservationPageState extends State<DetailReservationPage> {
                   ),
                   actions: [
                     TextButton(
-                      onPressed: () => Navigator.pop(context), // Fermer le dialog
+                      onPressed: (){
+                        Navigator.pop(context);
+                      }, // Fermer le dialog
                       child: Text('Annuler'),
                     ),
                     TextButton(
                       onPressed: () async {
-                        Navigator.pop(context); // Fermer le dialog
+                        Navigator.pushNamed(
+                          context,
+                          '/home',
+                          arguments: 0,
+                        );
                         if (motif.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Veuillez sélectionner un motif')),

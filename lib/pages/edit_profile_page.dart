@@ -66,7 +66,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Profil mis à jour avec succès!')),
         );
-        Navigator.pop(context, 3);
+        Navigator.pop(context, 2);
       }
     } catch (e) {
       print('Error updating user data: $e');

@@ -144,16 +144,14 @@ class _ReservationScreenState extends State<ReservationScreen3> {
                           thickness: 2,
                         ),
                       ),
-                      _buildStepIcon(Icons.account_box_outlined,
-                          Colors.blue),
+                      _buildStepIcon(Icons.account_box_outlined, Colors.blue),
                       Expanded(
                         child: Divider(
                           color: Colors.blue,
                           thickness: 2,
                         ),
                       ),
-                      _buildStepIcon(
-                          Icons.local_shipping, Colors.blue),
+                      _buildStepIcon(Icons.local_shipping, Colors.blue),
                     ],
                   ),
                 ),
@@ -482,7 +480,8 @@ class _ReservationScreenState extends State<ReservationScreen3> {
     }
 
     final String userId = user.uid;
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final annonceId = args?['annonceId'] as String?;
     final previousData1 = args?['previousData1'] as Map<String, dynamic>?;
     final previousData2 = args?['previousData2'] as Map<String, dynamic>?;
@@ -522,10 +521,15 @@ class _ReservationScreenState extends State<ReservationScreen3> {
           'annonce_id': annonceId,
           'status': 'En attente de validation',
           'date_creation': Timestamp.now(),
-          // Add other necessary colis fields here
         };
 
-        await FirebaseFirestore.instance.collection('parcels').add(colisData);
+        DocumentReference colisRef = await FirebaseFirestore.instance
+            .collection('parcels')
+            .add(colisData);
+        String colisId = colisRef.id;
+
+        // Update the reservation with the colis_id
+        await reservationRef.update({'colis_id': colisId});
 
         // Save notification for reservation
         await _enregistrerNotificationReservation(
@@ -546,7 +550,9 @@ class _ReservationScreenState extends State<ReservationScreen3> {
         Navigator.pushReplacementNamed(context, '/home', arguments: 0);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Erreur lors de la réservation: $e"), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text("Erreur lors de la réservation: $e"),
+              backgroundColor: Colors.red),
         );
       }
     } else {
@@ -555,7 +561,6 @@ class _ReservationScreenState extends State<ReservationScreen3> {
       );
     }
   }
-
 
   Future<void> _enregistrerNotificationReservation({
     required String annonceId,

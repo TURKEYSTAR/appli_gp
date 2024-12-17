@@ -9,6 +9,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:uni_links3/uni_links.dart';
+import 'dart:async';
+
 import 'pages/home_body.dart';
 import 'pages/onboarding.dart';
 import 'pages/profile_page.dart';
@@ -23,6 +26,7 @@ import 'pages/tracking_page.dart';
 import 'pages/details_profile_page.dart';
 import 'pages/detail_notif1.dart';
 import 'pages/edit_profile_page.dart';
+import 'pages/paiement_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,7 +54,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: (FirebaseAuth.instance.currentUser != null) ? '/tracking' : '/',
+      initialRoute: (FirebaseAuth.instance.currentUser != null) ? '/home' : '/',
       routes: {
         '/': (context) => OnboardingScreen(),
         '/home': (context) => HomePage(),
@@ -74,10 +78,11 @@ class MyApp extends StatelessWidget {
         '/reservation2': (context) => ReservationScreen2(),
         '/reservation3': (context) => ReservationScreen3(),
         '/detailsAnnonce': (context) => DetailAnnoncePage(),
-        '/tracking': (context) => TrackingPage(),
+        '/tracking': (context) => TrackingPage(parcelId: ''),
         '/detailsProfile': (context) => DetailsProfilePage(),
         '/detailNotif1': (context) => DetailReservationPage(),
         '/editProfile': (context) => EditProfilePage(),
+        '/paiement': (context) => PaymentPage(paymentUrl: '',),
       },
     );
   }
@@ -89,6 +94,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  StreamSubscription? _sub;
+
   int _selectedIndex = 0;
   User? currentUser;
   String? role;
@@ -103,6 +110,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _initDeepLinkListener();
     _checkUser();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final args = ModalRoute.of(context)?.settings.arguments as int?;
@@ -112,6 +120,60 @@ class _HomePageState extends State<HomePage> {
         });
       }
     });
+  }
+
+  /// Initialize Deep Link Listener
+  void _initDeepLinkListener() {
+    // Check if the platform is NOT Web
+    if (!kIsWeb) {
+      _sub = uriLinkStream.listen(
+            (Uri? uri) async {
+          if (uri != null) {
+            print("Received deep link: $uri");
+
+            if (uri.path == '/success') {
+              print("Payment success detected, updating Firestore...");
+              await _updateColisStatus();
+              Navigator.of(context).pushReplacementNamed('/home');
+            }
+          }
+        },
+        onError: (err) {
+          print("Error occurred while listening for deep links: $err");
+        },
+      );
+    } else {
+      print("Deep link listening is not supported on Web.");
+    }
+  }
+
+  /// Update the parcel status in Firestore to "Paiement effectué"
+  Future<void> _updateColisStatus() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      try {
+        final userId = user.uid;
+
+        // Query parcels belonging to the current user
+        final querySnapshot = await FirebaseFirestore.instance
+            .collection('parcels')
+            .where('expediteur_id', isEqualTo: userId)
+            .where('status', isNotEqualTo: 'Paiement effectué')
+            .get();
+
+        // Update each parcel's status to "Paiement effectué"
+        for (var doc in querySnapshot.docs) {
+          await doc.reference.update({'status': 'Paiement effectué'});
+        }
+
+        print("Parcel status updated to 'Paiement effectué'");
+      } catch (e) {
+        print("Error updating parcel status: $e");
+      }
+    } else {
+      print("No user is logged in.");
+    }
   }
 
   Future<void> _checkUser() async {
@@ -135,6 +197,12 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
   }
 
   @override
@@ -166,5 +234,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-

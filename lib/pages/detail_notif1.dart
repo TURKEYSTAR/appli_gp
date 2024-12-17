@@ -41,7 +41,7 @@ class _DetailReservationPageState extends State<DetailReservationPage> {
           .get();
 
       for (var parcel in parcelSnapshot.docs) {
-        await parcel.reference.update({'status': 'En attente du paiement'});
+        await parcel.reference.update({'status': 'En attente de paiement'});
       }
 
       // Add a notification for the sender

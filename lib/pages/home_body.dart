@@ -112,7 +112,6 @@ class _HomeBodyState extends State<HomeBody> {
                     ),
                   ),
                   SizedBox(height: 60),
-                  // Ajout du bouton vers DetailNotif2
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 30.0),
                     child: ElevatedButton(
@@ -139,7 +138,6 @@ class _HomeBodyState extends State<HomeBody> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 30.0),
                     child: Align(
@@ -228,9 +226,9 @@ class _HomeBodyState extends State<HomeBody> {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                Expanded(child: TransporteurCard(name: "James")),
+                Expanded(child: TransporteurCard(name: "Louise Khary")),
                 SizedBox(width: 16),
-                Expanded(child: TransporteurCard(name: "Jean")),
+                Expanded(child: TransporteurCard(name: "Aline Ba")),
               ],
             ),
           ),

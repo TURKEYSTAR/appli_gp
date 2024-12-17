@@ -15,7 +15,7 @@ class EventPath extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: isPast ? Colors.indigo.shade400 : Colors.indigoAccent, // Darker blue for past, lighter blue for future
+        color: isPast ? Colors.indigo.shade400 : Colors.indigo.shade100, // Darker blue for past, lighter blue for future
         borderRadius: BorderRadius.circular(10.0),
       ),
       padding: EdgeInsets.all(25.0),

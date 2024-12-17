@@ -19,7 +19,7 @@ Future<String?> initierPaiement(String description, double montant) async {
     "currency": "XOF",
     "ref_command": DateTime.now().millisecondsSinceEpoch.toString(),
     "ipn_url": "https://votre-url-callback",
-    "success_url": "https://votre-url-retour",
+    "success_url": "appli_gp://success",
     "cancel_url": "https://votre-url-annulation",
     "customer_email": "client@email.com",
     "customer_phone": "+221771234567",

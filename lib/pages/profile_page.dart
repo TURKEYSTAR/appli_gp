@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
-
 class ProfilePage extends StatefulWidget {
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -14,13 +13,13 @@ class _ProfilePageState extends State<ProfilePage>
   User? currentUser;
   String? role;
   String? displayName;
+  Map<int, bool> _isExpandedMap = {};
 
   Map<String, String> userDetails = {
     "Adresse": "Chargement...",
     "Mobile": "Chargement...",
     "Email": "Chargement...",
   };
-
 
   late TabController _tabController;
 
@@ -81,6 +80,26 @@ class _ProfilePageState extends State<ProfilePage>
         .map((query) => query.docs);
   }
 
+  Stream<List<QueryDocumentSnapshot>> fetchColisTrans() {
+    return FirebaseFirestore.instance
+        .collection('parcels')
+        .where('transporteur_id', isEqualTo: currentUser?.uid)
+        .snapshots()
+        .map((query) => query.docs);
+  }
+
+  // Function to update the status in Firestore
+  Future<void> _updateStatus(String newStatus, String colisId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('parcels')
+          .doc(colisId)
+          .update({'status': newStatus});
+    } catch (e) {
+      print("Erreur lors de la mise à jour du statut: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (currentUser == null) {
@@ -89,7 +108,8 @@ class _ProfilePageState extends State<ProfilePage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.person_outline, size: 100, color: Colors.deepPurple.shade100),
+              Icon(Icons.person_outline,
+                  size: 100, color: Colors.deepPurple.shade100),
               SizedBox(height: 10),
               Text(
                 'Vous n\'êtes pas connecté',
@@ -221,7 +241,8 @@ class _ProfilePageState extends State<ProfilePage>
                             SizedBox(height: 4),
                             Text(
                               entry.value,
-                              style: TextStyle(fontSize: 14, color: Colors.grey),
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.grey),
                             ),
                           ],
                         ),
@@ -236,7 +257,6 @@ class _ProfilePageState extends State<ProfilePage>
       ),
     );
   }
-
 
   Icon _getIconForDetail(String detailType) {
     switch (detailType) {
@@ -271,7 +291,7 @@ class _ProfilePageState extends State<ProfilePage>
               icon: role == "Transporteur"
                   ? Icon(Icons.bar_chart)
                   : Icon(Icons.bookmark),
-              text: role == "Transporteur" ? "Statistiques" : "Réservations",
+              text: role == "Transporteur" ? "Colis" : "Réservations",
             ),
           ],
         ),
@@ -283,12 +303,16 @@ class _ProfilePageState extends State<ProfilePage>
             controller: _tabController,
             children: [
               // First Tab: Annonces or Colis
-              if (role == "Transporteur") _buildAnnoncesList(context)
-              else _buildColisList(),
+              if (role == "Transporteur")
+                _buildAnnoncesList(context)
+              else
+                _buildColisList(),
 
-              // Second Tab: Statistiques or Réservations
-              if (role == "Transporteur") _buildStatistiquesPlaceholder()
-              else _buildReservationsList(),
+              // Second Tab: Colis or Réservations
+              if (role == "Transporteur")
+                _buildColisTransList()
+              else
+                _buildReservationsList(),
             ],
           ),
         ),
@@ -320,7 +344,9 @@ class _ProfilePageState extends State<ProfilePage>
                 onTap: () async {
                   if (FirebaseAuth.instance.currentUser == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Veuillez vous connecter pour plus de détails')),
+                      SnackBar(
+                          content: Text(
+                              'Veuillez vous connecter pour plus de détails')),
                     );
                   } else {
                     String? userId = annonceData['user_id'] as String?;
@@ -328,7 +354,8 @@ class _ProfilePageState extends State<ProfilePage>
 
                     if (userId != null && userId.isNotEmpty) {
                       try {
-                        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+                        DocumentSnapshot userDoc = await FirebaseFirestore
+                            .instance
                             .collection('users')
                             .doc(userId)
                             .get();
@@ -342,7 +369,9 @@ class _ProfilePageState extends State<ProfilePage>
                         }
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Erreur lors de la récupération des données.')),
+                          SnackBar(
+                              content: Text(
+                                  'Erreur lors de la récupération des données.')),
                         );
                       }
                     }
@@ -357,7 +386,6 @@ class _ProfilePageState extends State<ProfilePage>
                     );
                   }
                 },
-
               );
             }),
             TextButton(
@@ -377,7 +405,8 @@ class _ProfilePageState extends State<ProfilePage>
       stream: fetchReservations(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return Center(child: Text('Erreur lors de la récupération des réservations'));
+          return Center(
+              child: Text('Erreur lors de la récupération des réservations'));
         }
         if (!snapshot.hasData) {
           return Center(child: CircularProgressIndicator());
@@ -389,7 +418,8 @@ class _ProfilePageState extends State<ProfilePage>
         return ListView.builder(
           itemCount: reservations.length,
           itemBuilder: (context, index) {
-            var reservationData = reservations[index].data() as Map<String, dynamic>;
+            var reservationData =
+                reservations[index].data() as Map<String, dynamic>;
 
             // Convert and format the Firestore timestamp
             String formattedDate = "Non spécifiée";
@@ -406,7 +436,7 @@ class _ProfilePageState extends State<ProfilePage>
                 title: Text("Réservation ${index + 1}"),
                 subtitle: Text(
                   "Destination: ${reservationData['ville_destinataire'] ?? 'Non spécifiée'}\n"
-                      "Date: $formattedDate",
+                  "Date: $formattedDate",
                 ),
               ),
             );
@@ -421,44 +451,50 @@ class _ProfilePageState extends State<ProfilePage>
       stream: fetchColis(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return Center(child: Text('Erreur lors de la récupération des colis'));
+          return Center(
+              child: Text('Erreur lors de la récupération des colis'));
         }
+
         if (!snapshot.hasData) {
           return Center(child: CircularProgressIndicator());
         }
+
         var colisList = snapshot.data!;
         if (colisList.isEmpty) {
           return Center(child: Text('Aucun colis trouvé'));
         }
+
         return ListView.builder(
           itemCount: colisList.length,
           itemBuilder: (context, index) {
-            var colisData = colisList[index].data() as Map<String, dynamic>;
+            var colis = colisList[index];
+            String formattedDate = "Non spécifiée";
+            String status =
+                colis['status'] ?? 'Inconnu'; // Default status if not available
 
-            // Format date if necessary
-            String formattedDate = '';
-            if (colisData['date_creation'] != null) {
-              formattedDate = DateFormat('dd/MM/yyyy').format(
-                (colisData['date_creation'] as Timestamp).toDate(),
-              );
+            // Format the creation date if available
+            if (colis['date_creation'] != null) {
+              formattedDate = DateFormat('dd/MM/yyyy')
+                  .format((colis['date_creation'] as Timestamp).toDate());
             }
 
             return Card(
               margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               child: ListTile(
-                leading: Icon(Icons.inbox, color: Colors.blue),
-                title: Text("Colis ${index + 1}"),
+                leading: Icon(Icons.inbox, color: Colors.indigo),
+                title: Text("Colis N°${index + 1}"),
                 subtitle: Text(
-                  'Créé le: $formattedDate\n'
-                      'Statut: ${colisData['status'] ?? 'Inconnu'}',
+                  '$formattedDate\n'
+                  '$status',
                 ),
                 trailing: IconButton(
                   icon: Icon(Icons.arrow_forward, color: Colors.grey),
                   onPressed: () {
-                    // Naviguer vers TrackingPage avec les arguments
+                    // Navigate to the TrackingPage with colis data as arguments
                     Navigator.pushNamed(
                       context,
                       '/tracking',
+                      arguments: {'parcelId': colis.id}, // Pass colis ID or any other required data
                     );
                   },
                 ),
@@ -470,6 +506,81 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
+  Widget _buildColisTransList() {
+    return StreamBuilder<List<QueryDocumentSnapshot>>(
+      stream: fetchColisTrans(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(child: Text('Erreur lors de la récupération des colis'));
+        }
+
+        if (!snapshot.hasData) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        var colisList = snapshot.data!;
+        if (colisList.isEmpty) {
+          return Center(child: Text('Aucun colis trouvé'));
+        }
+
+        return ListView.builder(
+          itemCount: colisList.length,
+          itemBuilder: (context, index) {
+            var colis = colisList[index];
+            String formattedDate = "Non spécifiée";
+            String status = colis['status'] ?? 'Inconnu'; // Default status if not available
+
+            // Format the creation date if available
+            if (colis['date_creation'] != null) {
+              formattedDate = DateFormat('dd/MM/yyyy')
+                  .format((colis['date_creation'] as Timestamp).toDate());
+            }
+
+            return Card(
+              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: Icon(Icons.inbox, color: Colors.indigo),
+                    title: Text("Colis N°${index + 1}"),
+                    subtitle: Text(
+                      '$formattedDate\n'
+                          '$status',
+                    ),
+                  ),
+                  // Buttons will always be visible
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () => _updateStatus('Colis récupéré', colis.id),
+                          child: Text('Récupéré'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => _updateStatus('Pays quitté', colis.id),
+                          child: Text('Départ'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => _updateStatus('Bientôt arrivé', colis.id),
+                          child: Text('En route'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => _updateStatus('Colis livrée', colis.id),
+                          child: Text('Livré'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   Widget _buildContentSection(
       {required String title, required String description}) {
@@ -500,29 +611,5 @@ class _ProfilePageState extends State<ProfilePage>
     super.dispose();
   }
 }
-
-Widget _buildStatistiquesPlaceholder() {
-  return Center(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.bar_chart, size: 50, color: Colors.deepPurple.shade700),
-        SizedBox(height: 20),
-        Text(
-          "Statistiques",
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 10),
-        Text(
-          "Aucune statistique disponible pour le moment.",
-          style: TextStyle(fontSize: 16, color: Colors.grey),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    ),
-  );
-}
-
-
 
 

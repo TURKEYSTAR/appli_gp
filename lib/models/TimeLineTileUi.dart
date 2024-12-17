@@ -25,14 +25,14 @@ class TimeLineTileUI extends StatelessWidget {
         isFirst: isFirst,
         isLast: isLast,
         beforeLineStyle: LineStyle(
-          color: isPast ? Colors.green : Color(0xFF9FA8FF), // Muted complement for past/future
+          color: isPast ? Colors.green : Colors.grey, // Muted complement for past/future
         ),
         indicatorStyle: IndicatorStyle(
           width: 40.0,
-          color: isPast ? Colors.lightGreen : Color(0xFF9FA8FF), // Green for completed, blue tint for upcoming
+          color: isPast ? Colors.green : Colors.grey.shade600, // Green for completed, blue tint for upcoming
           iconStyle: IconStyle(
             iconData: Icons.check_circle,
-            color: isPast ? Colors.white : Colors.green, // White for clarity on green
+            color: isPast ? Colors.white : Colors.grey.shade100, // White for clarity on green
           ),
         ),
         endChild: Container(
